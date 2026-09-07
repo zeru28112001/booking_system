@@ -7,13 +7,15 @@ abstract class AuthRepository {
   Future<User> login({
     required String phone,
     required String password,
+    String role = 'customer',
   });
 
-  /// Register a new customer account → returns authenticated User.
+  /// Register a new account → returns authenticated User.
   Future<User> register({
     required String name,
     required String phone,
     required String password,
+    String role = 'customer',
   });
 
   /// Logout — clears stored token.

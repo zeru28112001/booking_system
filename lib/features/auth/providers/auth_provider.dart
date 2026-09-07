@@ -39,12 +39,14 @@ class AuthProvider extends ChangeNotifier {
   Future<void> login({
     required String phone,
     required String password,
+    String role = 'customer',
   }) async {
     _setLoading(true);
     try {
       _currentUser = await _authRepository.login(
         phone: phone,
         password: password,
+        role: role,
       );
       _error = null;
     } catch (e) {
@@ -59,6 +61,7 @@ class AuthProvider extends ChangeNotifier {
     required String name,
     required String phone,
     required String password,
+    String role = 'customer',
   }) async {
     _setLoading(true);
     try {
@@ -66,6 +69,7 @@ class AuthProvider extends ChangeNotifier {
         name: name,
         phone: phone,
         password: password,
+        role: role,
       );
       _error = null;
     } catch (e) {

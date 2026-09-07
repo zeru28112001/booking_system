@@ -12,6 +12,7 @@ class AppTheme {
   static const Color primaryLight = Color(0xFF4DB6AC);  // teal 300
   static const Color primaryDark = Color(0xFF00695C);   // teal 800
   static const Color secondary = Color(0xFF43A047);     // green 600
+  static const Color success = Color(0xFF43A047);       // green 600
   static const Color accent = Color(0xFF00BFA5);        // teal accent 400
 
   static const Color background = Color(0xFFF5F7F6);
@@ -25,6 +26,8 @@ class AppTheme {
   static const Color textHint = Color(0xFF9E9E9E);
 
   static const Color error = Color(0xFFD32F2F);
+  static const Color warning = Color(0xFFF9A825);
+  static const Color info = Color(0xFF1E88E5);
   static const Color divider = Color(0xFFE0E0E0);
 
   // ── Light theme ──────────────────────────────────────────────────────────
@@ -186,6 +189,46 @@ class AppTheme {
         color: divider,
         thickness: 1,
         space: 1,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        elevation: 0,
+        height: 64,
+        indicatorColor: primary.withAlpha(25),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: primary, size: 24);
+          }
+          return const IconThemeData(color: textSecondary, size: 24);
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: primary,
+            );
+          }
+          return GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: textSecondary,
+          );
+        }),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: surface,
+        selectedItemColor: primary,
+        unselectedItemColor: textSecondary,
+        elevation: 8,
+        selectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

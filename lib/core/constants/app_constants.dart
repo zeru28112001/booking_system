@@ -28,4 +28,8 @@ class AppConstants {
   // ── OTP ───────────────────────────────────────────────────────────────────
   static const int otpLength = 6;
   static const int otpResendSeconds = 60;
+
+  // ── Home ──────────────────────────────────────────────────────────────────
+  /// Shown in the Home app bar until real location detection exists.
+  static const String defaultLocation = 'Yangon';
 }

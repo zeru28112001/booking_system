@@ -40,6 +40,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  String _selectedRole = 'customer';
+
   Future<void> _onRegister() async {
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
@@ -47,10 +49,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       name: _nameCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
       password: _passwordCtrl.text,
+      role: _selectedRole,
     );
     if (!mounted) return;
     if (auth.isAuthenticated) {
-      context.go('/home');
+      if (_selectedRole == 'provider') {
+        context.go('/provider-onboarding');
+      } else {
+        context.go('/home');
+      }
     }
   }
 
@@ -188,32 +195,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: AppConstants.spaceSm),
-
-                // Role note
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.spaceMd,
-                    vertical: AppConstants.spaceSm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline, size: 16, color: AppTheme.primary),
-                      const SizedBox(width: AppConstants.spaceSm),
-                      Expanded(
-                        child: Text(
-                          'Registering as: Customer',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.primary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
+                Text(
+                  'Account Type',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: AppConstants.spaceSm),
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(
+                      value: 'customer',
+                      label: Text('Customer'),
+                      icon: Icon(Icons.person_outline),
+                    ),
+                    ButtonSegment(
+                      value: 'provider',
+                      label: Text('Service Provider'),
+                      icon: Icon(Icons.storefront_outlined),
+                    ),
+                  ],
+                  selected: {_selectedRole},
+                  onSelectionChanged: (val) {
+                    setState(() => _selectedRole = val.first);
+                  },
                 ),
                 const SizedBox(height: AppConstants.spaceXl),
 

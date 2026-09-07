@@ -31,16 +31,26 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  String _selectedRole = 'customer';
+
   Future<void> _onLogin() async {
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
     await auth.login(
       phone: _phoneCtrl.text.trim(),
       password: _passwordCtrl.text,
+      role: _selectedRole,
     );
     if (!mounted) return;
     if (auth.isAuthenticated) {
-      context.go('/home');
+      final role = auth.currentUser?.role ?? _selectedRole;
+      if (role == 'admin') {
+        context.go('/admin-dashboard');
+      } else if (role == 'provider') {
+        context.go('/provider-dashboard');
+      } else {
+        context.go('/home');
+      }
     }
   }
 
@@ -94,6 +104,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                 ),
+
+                // Role Selector
+                Text(
+                  'Account Role',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: AppConstants.spaceSm),
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(
+                      value: 'customer',
+                      label: Text('Customer'),
+                      icon: Icon(Icons.person_outline),
+                    ),
+                    ButtonSegment(
+                      value: 'provider',
+                      label: Text('Provider'),
+                      icon: Icon(Icons.storefront_outlined),
+                    ),
+                    ButtonSegment(
+                      value: 'admin',
+                      label: Text('Admin'),
+                      icon: Icon(Icons.admin_panel_settings_outlined),
+                    ),
+                  ],
+                  selected: {_selectedRole},
+                  onSelectionChanged: (val) {
+                    setState(() => _selectedRole = val.first);
+                  },
+                ),
+                const SizedBox(height: AppConstants.spaceLg),
 
                 // Phone field
                 AppTextField(

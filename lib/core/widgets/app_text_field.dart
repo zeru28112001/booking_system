@@ -17,7 +17,9 @@ class AppTextField extends StatefulWidget {
     this.onFieldSubmitted,
     this.focusNode,
     this.enabled = true,
+    this.readOnly = false,
     this.maxLength,
+    this.maxLines = 1,
     this.autofillHints,
   });
 
@@ -33,7 +35,9 @@ class AppTextField extends StatefulWidget {
   final ValueChanged<String>? onFieldSubmitted;
   final FocusNode? focusNode;
   final bool enabled;
+  final bool readOnly;
   final int? maxLength;
+  final int maxLines;
   final Iterable<String>? autofillHints;
 
   @override
@@ -61,7 +65,9 @@ class _AppTextFieldState extends State<AppTextField> {
       onChanged: widget.onChanged,
       onFieldSubmitted: widget.onFieldSubmitted,
       enabled: widget.enabled,
+      readOnly: widget.readOnly,
       maxLength: widget.maxLength,
+      maxLines: widget.maxLines,
       autofillHints: widget.autofillHints,
       decoration: InputDecoration(
         labelText: widget.label,

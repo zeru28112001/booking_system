@@ -26,8 +26,12 @@ class AuthRepositoryImpl implements AuthRepository {
   // ── AuthRepository ────────────────────────────────────────────────────────
 
   @override
-  Future<User> login({required String phone, required String password}) async {
-    if (useMock) return _mockLogin(phone: phone, password: password);
+  Future<User> login({
+    required String phone,
+    required String password,
+    String role = 'customer',
+  }) async {
+    if (useMock) return _mockLogin(phone: phone, password: password, role: role);
 
     final model = await _authApiService.login(phone: phone, password: password);
     await _persistUser(model);
@@ -40,8 +44,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String name,
     required String phone,
     required String password,
+    String role = 'customer',
   }) async {
-    if (useMock) return _mockRegister(name: name, phone: phone);
+    if (useMock) return _mockRegister(name: name, phone: phone, role: role);
 
     final model = await _authApiService.register(
       name: name,
@@ -94,13 +99,16 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<User> _mockLogin({
     required String phone,
     required String password,
+    String role = 'customer',
   }) async {
     await Future.delayed(const Duration(seconds: 1)); // simulate latency
     return UserModel(
       id: '1',
-      name: 'Demo Customer',
+      name: role == 'admin'
+          ? 'System Admin'
+          : (role == 'provider' ? 'Glow Beauty Studio' : 'Khin Su Su'),
       phone: phone,
-      role: 'customer',
+      role: role,
       token: 'mock-token-12345',
     );
   }
@@ -108,13 +116,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<User> _mockRegister({
     required String name,
     required String phone,
+    String role = 'customer',
   }) async {
     await Future.delayed(const Duration(seconds: 1));
     return UserModel(
       id: '2',
       name: name,
       phone: phone,
-      role: 'customer',
+      role: role,
       token: 'mock-token-67890',
     );
   }
