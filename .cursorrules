@@ -1,0 +1,101 @@
+# Flutter Booking System — Cursor Rules
+
+## Architecture
+Feature-based clean architecture: ApiClient → ApiService → RepositoryImpl → Provider → Screen
+
+## Stack
+- UI: Flutter + Material 3
+- State: Provider (ChangeNotifier) only — no Riverpod, Bloc, GetX
+- HTTP: core/network/api_client.dart wrapping `http`
+- Config: flutter_dotenv + .env
+
+## Folder structure
+lib/
+  main.dart
+  core/
+    constants/
+    theme/
+    widgets/
+    error/app_exception.dart
+    network/api_client.dart
+  features/<feature>/
+    domain/entities/
+    domain/repositories/     ← abstract class only
+    data/models/             ← fromJson/toJson
+    data/services/           ← HTTP calls
+    data/repositories/       ← *RepositoryImpl
+    providers/
+    screens/
+    widgets/
+
+## Layer rules
+- Screens: never call HTTP, ApiClient, or *ApiService
+- Providers: never parse JSON, never import data/; take abstract repository in constructor
+- ApiService: HTTP + JSON → Model only; no notifyListeners
+- RepositoryImpl: call service, return entities
+- ApiClient: shared headers, status codes, network errors only
+- main.dart wires everything: ApiClient → *ApiService → *RepositoryImpl → *Provider
+
+## Naming
+- Entity:   booking.dart         → Booking
+- Model:    booking_model.dart   → BookingModel
+- Service:  booking_api_service.dart → BookingApiService
+- Contract: booking_repository.dart  → abstract class BookingRepository
+- Impl:     booking_repository_impl.dart → BookingRepositoryImpl
+- Provider: booking_provider.dart
+- Files: snake_case | Classes: PascalCase | Private: _prefix
+
+## Provider pattern
+```dart
+class BookingProvider extends ChangeNotifier {
+  BookingProvider({required BookingRepository bookingRepository})
+      : _bookingRepository = bookingRepository;
+
+  final BookingRepository _bookingRepository;
+  bool _isLoading = false;
+  String? _error;
+  List<Booking> _bookings = [];
+
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+  List<Booking> get bookings => _bookings;
+
+  Future<void> fetchBookings() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _bookings = await _bookingRepository.getBookings();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+}
+```
+
+## Screens must handle 4 states
+loading | error | empty | data
+
+## Imports
+- Same feature: relative paths
+- Provider → domain/ only
+- Widgets → domain/entities/ only
+- Service → ApiClient + models
+- Never import one feature from another
+
+## Do NOT
+- Merge ApiService and Repository
+- Construct ApiClient/*ApiService inside a Provider
+- Call APIs from widgets
+- Hardcode URLs, colors, or strings
+- Import data/ from screens
+- Commit .env
+- Use context.watch in onPressed
+
+## Secrets
+- API_BASE_URL in .env
+- .env listed in pubspec.yaml assets
+- .env in .gitignore
