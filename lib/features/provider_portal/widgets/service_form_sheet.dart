@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:booking_system/features/provider/domain/entities/service.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../providers/provider_portal_provider.dart';
@@ -136,11 +137,44 @@ class _ServiceFormSheetState extends State<ServiceFormSheet> {
                 ],
               ),
               const SizedBox(height: AppConstants.spaceMd),
-              AppTextField(
-                controller: _groupController,
-                label: 'Service Group (e.g. Hair, Nails, Spa)',
-                prefixIcon: Icons.category_outlined,
-                validator: (val) => val == null || val.trim().isEmpty ? 'Group required' : null,
+              Consumer<ProviderPortalProvider>(
+                builder: (context, provider, _) {
+                  final groupNames = provider.serviceGroups.map((g) => g.name).toList();
+                  if (groupNames.isEmpty) {
+                    groupNames.addAll(['Hair', 'Nails', 'Spa', 'Beard', 'General']);
+                  }
+
+                  final currentText = _groupController.text.trim();
+                  if (currentText.isNotEmpty && !groupNames.contains(currentText)) {
+                    groupNames.insert(0, currentText);
+                  }
+                  final currentValue = groupNames.contains(currentText) ? currentText : groupNames.first;
+
+                  return DropdownButtonFormField<String>(
+                    initialValue: currentValue,
+                    decoration: InputDecoration(
+                      labelText: 'Service Group',
+                      prefixIcon: const Icon(Icons.category_outlined, color: AppTheme.textSecondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                      ),
+                    ),
+                    items: groupNames.map((g) {
+                      return DropdownMenuItem<String>(
+                        value: g,
+                        child: Text(g),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          _groupController.text = val;
+                        });
+                      }
+                    },
+                    validator: (val) => val == null || val.trim().isEmpty ? 'Service group is required' : null,
+                  );
+                },
               ),
               const SizedBox(height: AppConstants.spaceLg),
               Consumer<ProviderPortalProvider>(

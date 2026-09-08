@@ -4,6 +4,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/animations/interactive_star_rating.dart';
 import '../providers/review_provider.dart';
 
 /// Modal bottom sheet for writing and submitting a provider review.
@@ -94,21 +95,13 @@ class _ReviewFormSheetState extends State<ReviewFormSheet> {
                 Center(
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          for (int i = 1; i <= 5; i++)
-                            IconButton(
-                              onPressed: () => setState(() => _rating = i.toDouble()),
-                              icon: Icon(
-                                i <= _rating
-                                    ? Icons.star_rounded
-                                    : Icons.star_outline_rounded,
-                                size: 36,
-                                color: AppTheme.warning,
-                              ),
-                            ),
-                        ],
+                      InteractiveStarRating(
+                        initialRating: _rating.toInt(),
+                        onRatingChanged: (newRating) {
+                          setState(() {
+                            _rating = newRating.toDouble();
+                          });
+                        },
                       ),
                       Text(
                         _ratingLabel(_rating),

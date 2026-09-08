@@ -27,8 +27,9 @@ class ProviderApiService {
 
   /// GET /providers/{providerId}
   Future<ServiceProviderModel> getProviderDetail(String providerId) async {
-    final data =
+    final responseData =
         await _apiClient.get('/providers/$providerId') as Map<String, dynamic>;
+    final data = (responseData['data'] as Map<String, dynamic>?) ?? responseData;
     return ServiceProviderModel.fromJson(data);
   }
 }

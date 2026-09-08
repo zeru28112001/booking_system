@@ -33,8 +33,8 @@ class CategoryTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppConstants.spaceSm,
-            vertical: AppConstants.spaceMd,
+            horizontal: AppConstants.spaceXs,
+            vertical: AppConstants.spaceSm,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

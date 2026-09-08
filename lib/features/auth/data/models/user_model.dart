@@ -15,7 +15,7 @@ class UserModel extends User {
     // Unwrap nested `user` key if present (e.g. { "user": {...}, "token": "..." })
     final userData = json['user'] as Map<String, dynamic>? ?? json;
     return UserModel(
-      id: (userData['id'] ?? '').toString(),
+      id: (userData['_id'] ?? userData['id'] ?? '').toString(),
       name: (userData['name'] as String?) ?? '',
       phone: (userData['phone'] as String?) ?? '',
       role: (userData['role'] as String?) ?? 'customer',

@@ -21,7 +21,6 @@ void main() {
         providerPortalApiService: ProviderPortalApiService(
           apiClient: ApiClient(baseUrl: 'http://localhost'),
         ),
-        useMock: true,
       );
       final provider = ProviderPortalProvider(providerPortalRepository: repo);
       await provider.fetchAllData();

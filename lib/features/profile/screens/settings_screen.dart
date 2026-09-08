@@ -28,11 +28,12 @@ class SettingsScreen extends StatelessWidget {
           children: [
             Text('Preferences', style: theme.textTheme.titleLarge),
             const SizedBox(height: AppConstants.spaceSm),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
+            Material(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                border: Border.all(color: AppTheme.divider),
+                side: const BorderSide(color: AppTheme.divider),
               ),
               child: Column(
                 children: [
@@ -91,11 +92,12 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: AppConstants.spaceLg),
             Text('About & Legal', style: theme.textTheme.titleLarge),
             const SizedBox(height: AppConstants.spaceSm),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
+            Material(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                border: Border.all(color: AppTheme.divider),
+                side: const BorderSide(color: AppTheme.divider),
               ),
               child: Column(
                 children: [

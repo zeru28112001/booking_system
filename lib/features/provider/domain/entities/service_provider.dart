@@ -18,6 +18,7 @@ class ServiceProvider {
     required this.address,
     required this.phone,
     required this.isOpen,
+    this.isAvailable = true,
     this.isShop = false,
     this.isHomeService = false,
     this.services = const [],
@@ -42,6 +43,7 @@ class ServiceProvider {
   final String address;
   final String phone;
   final bool isOpen;
+  final bool isAvailable;
 
   /// True if shop model (multiple staff), false if solo pro.
   final bool isShop;
@@ -53,6 +55,48 @@ class ServiceProvider {
   final List<Service> services;
   final List<Review> reviews;
   final List<Staff> staffList;
+
+  ServiceProvider copyWith({
+    String? id,
+    String? categoryId,
+    String? name,
+    String? tagline,
+    double? rating,
+    int? reviewCount,
+    double? distanceKm,
+    int? priceMin,
+    int? priceMax,
+    String? address,
+    String? phone,
+    bool? isOpen,
+    bool? isAvailable,
+    bool? isShop,
+    bool? isHomeService,
+    List<Service>? services,
+    List<Review>? reviews,
+    List<Staff>? staffList,
+  }) {
+    return ServiceProvider(
+      id: id ?? this.id,
+      categoryId: categoryId ?? this.categoryId,
+      name: name ?? this.name,
+      tagline: tagline ?? this.tagline,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
+      distanceKm: distanceKm ?? this.distanceKm,
+      priceMin: priceMin ?? this.priceMin,
+      priceMax: priceMax ?? this.priceMax,
+      address: address ?? this.address,
+      phone: phone ?? this.phone,
+      isOpen: isOpen ?? this.isOpen,
+      isAvailable: isAvailable ?? this.isAvailable,
+      isShop: isShop ?? this.isShop,
+      isHomeService: isHomeService ?? this.isHomeService,
+      services: services ?? this.services,
+      reviews: reviews ?? this.reviews,
+      staffList: staffList ?? this.staffList,
+    );
+  }
 
   @override
   String toString() => 'ServiceProvider(id: $id, name: $name)';

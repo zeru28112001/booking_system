@@ -21,7 +21,10 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<ProviderPortalProvider>().fetchAllData();
+      final provider = context.read<ProviderPortalProvider>();
+      if (provider.profile == null && !provider.isLoading) {
+        provider.fetchAllData();
+      }
     });
   }
 
@@ -39,32 +42,36 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
               final isAvailable = provider.isAvailable;
               return Padding(
                 padding: const EdgeInsets.only(right: AppConstants.spaceMd),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isAvailable ? AppTheme.success : AppTheme.warning,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: (isAvailable ? AppTheme.success : AppTheme.warning).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(AppConstants.radiusPill),
+                    border: Border.all(
+                      color: (isAvailable ? AppTheme.success : AppTheme.warning).withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isAvailable ? AppTheme.success : AppTheme.warning,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      isAvailable ? 'Available' : 'Busy',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isAvailable ? AppTheme.success : AppTheme.warning,
+                      const SizedBox(width: 6),
+                      Text(
+                        isAvailable ? 'Available' : 'Busy',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: isAvailable ? AppTheme.success : AppTheme.warning,
+                        ),
                       ),
-                    ),
-                    Switch(
-                      value: isAvailable,
-                      activeThumbColor: AppTheme.success,
-                      onChanged: (val) {
-                        provider.toggleAvailability(val);
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

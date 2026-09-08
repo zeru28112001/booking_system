@@ -44,7 +44,6 @@ void main() {
         reviewApiService: ReviewApiService(
           apiClient: ApiClient(baseUrl: 'http://localhost'),
         ),
-        useMock: true,
       );
 
       final submitted = await repo.submitReview(
@@ -67,7 +66,6 @@ void main() {
         reviewApiService: ReviewApiService(
           apiClient: ApiClient(baseUrl: 'http://localhost'),
         ),
-        useMock: true,
       );
       final provider = ReviewProvider(reviewRepository: repo);
 
@@ -116,7 +114,6 @@ void main() {
         profileApiService: ProfileApiService(
           apiClient: ApiClient(baseUrl: 'http://localhost'),
         ),
-        useMock: true,
       );
 
       final initial = await repo.getProfile();
@@ -138,7 +135,6 @@ void main() {
         profileApiService: ProfileApiService(
           apiClient: ApiClient(baseUrl: 'http://localhost'),
         ),
-        useMock: true,
       );
       final provider = ProfileProvider(profileRepository: repo);
 

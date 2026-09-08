@@ -29,7 +29,10 @@ class ProviderCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppConstants.spaceMd),
           child: Row(
             children: [
-              GradientAvatar(name: provider.name),
+              Hero(
+                tag: 'provider-avatar-${provider.id}',
+                child: GradientAvatar(name: provider.name),
+              ),
               const SizedBox(width: AppConstants.spaceMd),
               Expanded(
                 child: Column(
@@ -82,7 +85,10 @@ class ProviderCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppConstants.spaceSm),
-              _OpenPill(isOpen: provider.isOpen),
+              _OpenPill(
+                isOpen: provider.isOpen,
+                isAvailable: provider.isAvailable,
+              ),
             ],
           ),
         ),
@@ -92,13 +98,22 @@ class ProviderCard extends StatelessWidget {
 }
 
 class _OpenPill extends StatelessWidget {
-  const _OpenPill({required this.isOpen});
+  const _OpenPill({
+    required this.isOpen,
+    this.isAvailable = true,
+  });
 
   final bool isOpen;
+  final bool isAvailable;
 
   @override
   Widget build(BuildContext context) {
-    final color = isOpen ? AppTheme.secondary : AppTheme.textHint;
+    final bool active = isOpen && isAvailable;
+    final color = active
+        ? AppTheme.secondary
+        : (!isAvailable ? AppTheme.warning : AppTheme.textHint);
+    final label = active ? 'Open' : (!isAvailable ? 'Busy' : 'Closed');
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppConstants.spaceSm,
@@ -109,7 +124,7 @@ class _OpenPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.radiusPill),
       ),
       child: Text(
-        isOpen ? 'Open' : 'Closed',
+        label,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: color,
               fontWeight: FontWeight.w600,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../providers/provider_portal_provider.dart';
 import 'provider_dashboard_screen.dart';
 import 'provider_bookings_screen.dart';
 import 'provider_services_screen.dart';
@@ -15,6 +17,16 @@ class ProviderShellScreen extends StatefulWidget {
 
 class _ProviderShellScreenState extends State<ProviderShellScreen> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ProviderPortalProvider>().fetchAllData();
+      }
+    });
+  }
 
   final List<Widget> _screens = const [
     ProviderDashboardScreen(),

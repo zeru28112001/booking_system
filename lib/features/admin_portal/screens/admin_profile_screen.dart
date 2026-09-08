@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'package:booking_system/features/auth/providers/auth_provider.dart';
 import '../providers/admin_portal_provider.dart';
+import 'admin_banners_screen.dart';
 
 class AdminProfileScreen extends StatelessWidget {
   const AdminProfileScreen({super.key});
@@ -129,6 +130,18 @@ class AdminProfileScreen extends StatelessWidget {
             const SizedBox(height: AppConstants.spaceSm),
             _buildSettingTile(
               context,
+              icon: Icons.view_carousel_rounded,
+              title: 'Promo Banners Management',
+              subtitle: 'Create, edit, toggle, or delete home screen promo offers',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AdminBannersScreen()),
+                );
+              },
+            ),
+            _buildSettingTile(
+              context,
               icon: Icons.shield_outlined,
               title: 'Verification Policy Settings',
               subtitle: 'FR-16 automated document checks and approval rules',
@@ -150,11 +163,12 @@ class AdminProfileScreen extends StatelessWidget {
             // Logout Action
             Text('Account Session', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: AppConstants.spaceSm),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
+            Material(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                border: Border.all(color: AppTheme.divider),
+                side: const BorderSide(color: AppTheme.divider),
               ),
               child: ListTile(
                 leading: const Icon(Icons.logout_rounded, color: AppTheme.error),
@@ -192,19 +206,22 @@ class AdminProfileScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppConstants.spaceSm),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppConstants.spaceSm),
+      child: Material(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(color: AppTheme.divider),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: AppTheme.primary),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          side: const BorderSide(color: AppTheme.divider),
+        ),
+        child: ListTile(
+          leading: Icon(icon, color: AppTheme.primary),
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: onTap,
+        ),
       ),
     );
   }

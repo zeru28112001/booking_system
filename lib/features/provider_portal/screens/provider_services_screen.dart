@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../providers/provider_portal_provider.dart';
 import '../widgets/service_form_sheet.dart';
+import 'provider_service_groups_screen.dart';
 
 class ProviderServicesScreen extends StatelessWidget {
   const ProviderServicesScreen({super.key});
@@ -28,6 +29,16 @@ class ProviderServicesScreen extends StatelessWidget {
         centerTitle: false,
         title: const Text('Manage Services'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.category_outlined),
+            tooltip: 'Manage Service Groups',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProviderServiceGroupsScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.add_circle_outline_rounded),
             tooltip: 'Add Service',
@@ -125,6 +136,7 @@ class ProviderServicesScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () => _openSheet(context),
         icon: const Icon(Icons.add_rounded),
         label: const Text('Add Service'),

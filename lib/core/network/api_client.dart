@@ -7,9 +7,10 @@ import '../error/app_exception.dart';
 /// Handles: base URL, Authorization header, status-code → AppException mapping.
 /// Feature-specific JSON parsing is done in *ApiService, not here.
 class ApiClient {
-  ApiClient({required this._baseUrl});
+  ApiClient({required this._baseUrl, this._apiKey});
 
   final String _baseUrl;
+  final String? _apiKey;
   String? _authToken;
 
   /// Set the auth token (called from AuthRepositoryImpl after login).
@@ -23,6 +24,7 @@ class ApiClient {
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        if (_apiKey != null && _apiKey.isNotEmpty) 'x-api-key': _apiKey,
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
@@ -45,6 +47,14 @@ class ApiClient {
 
   Future<dynamic> put(String path, {Map<String, dynamic>? body}) async {
     return _execute(() => http.put(
+          Uri.parse('$_baseUrl$path'),
+          headers: _headers,
+          body: body != null ? jsonEncode(body) : null,
+        ));
+  }
+
+  Future<dynamic> patch(String path, {Map<String, dynamic>? body}) async {
+    return _execute(() => http.patch(
           Uri.parse('$_baseUrl$path'),
           headers: _headers,
           body: body != null ? jsonEncode(body) : null,
@@ -80,11 +90,23 @@ class ApiClient {
       case >= 200 && < 300:
         return body;
       case 401:
-        throw const UnauthorizedException();
+        final message = (body['message'] as String?) ?? 'Unauthorized access. Please log in.';
+        throw UnauthorizedException(message);
       case 404:
-        throw const NotFoundException();
+        final message = (body['message'] as String?) ?? 'The requested resource was not found.';
+        throw NotFoundException(message);
+      case 400:
       case 422:
-        final message = (body['message'] as String?) ?? 'Validation failed.';
+        var message = (body['message'] as String?) ?? 'Validation failed.';
+        if (body['details'] is List && (body['details'] as List).isNotEmpty) {
+          final detailsList = (body['details'] as List)
+              .map((d) => d is Map ? (d['message'] ?? d['field']) : d.toString())
+              .where((s) => s != null && s.toString().isNotEmpty)
+              .join(', ');
+          if (detailsList.isNotEmpty) {
+            message = detailsList;
+          }
+        }
         throw ValidationException(message);
       case >= 500:
         throw const ServerException();

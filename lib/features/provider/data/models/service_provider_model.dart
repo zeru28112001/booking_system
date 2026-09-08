@@ -1,4 +1,7 @@
+import '../../domain/entities/review.dart';
+import '../../domain/entities/service.dart';
 import '../../domain/entities/service_provider.dart';
+import '../../domain/entities/staff.dart';
 import 'review_model.dart';
 import 'service_model.dart';
 import 'staff_model.dart';
@@ -19,6 +22,7 @@ class ServiceProviderModel extends ServiceProvider {
     required super.address,
     required super.phone,
     required super.isOpen,
+    super.isAvailable = true,
     super.isShop = false,
     super.isHomeService = false,
     super.services,
@@ -28,9 +32,10 @@ class ServiceProviderModel extends ServiceProvider {
 
   factory ServiceProviderModel.fromJson(Map<String, dynamic> json) {
     return ServiceProviderModel(
-      id: (json['id'] ?? '').toString(),
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
       categoryId: (json['category_id'] as String?) ??
           (json['categoryId'] as String?) ??
+          (json['category'] is Map ? (json['category']['_id'] ?? json['category']['id'])?.toString() : json['category'] as String?) ??
           '',
       name: (json['name'] as String?) ?? '',
       tagline: (json['tagline'] as String?) ?? '',
@@ -50,6 +55,11 @@ class ServiceProviderModel extends ServiceProvider {
       address: (json['address'] as String?) ?? '',
       phone: (json['phone'] as String?) ?? '',
       isOpen: (json['is_open'] as bool?) ?? (json['isOpen'] as bool?) ?? true,
+      isAvailable: (json['is_available'] as bool?) ??
+          (json['isAvailable'] as bool?) ??
+          (json['is_open'] as bool?) ??
+          (json['isOpen'] as bool?) ??
+          true,
       isShop: (json['is_shop'] as bool?) ?? (json['isShop'] as bool?) ?? false,
       isHomeService: (json['is_home_service'] as bool?) ??
           (json['isHomeService'] as bool?) ??
@@ -60,7 +70,7 @@ class ServiceProviderModel extends ServiceProvider {
       reviews: (json['reviews'] as List<dynamic>? ?? const [])
           .map((item) => ReviewModel.fromJson(item as Map<String, dynamic>))
           .toList(),
-      staffList: (json['staff'] as List<dynamic>? ?? const [])
+      staffList: ((json['staff'] ?? json['staffList']) as List<dynamic>? ?? const [])
           .map((item) => StaffModel.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
@@ -81,8 +91,51 @@ class ServiceProviderModel extends ServiceProvider {
         'is_open': isOpen,
         'is_shop': isShop,
         'is_home_service': isHomeService,
-        'services': services.map((s) => (s as ServiceModel).toJson()).toList(),
-        'reviews': reviews.map((r) => (r as ReviewModel).toJson()).toList(),
-        'staff': staffList.map((st) => (st as StaffModel).toJson()).toList(),
+        'services': services.map((s) => (s is ServiceModel ? s.toJson() : s)).toList(),
+        'reviews': reviews.map((r) => (r is ReviewModel ? r.toJson() : r)).toList(),
+        'staff': staffList.map((st) => (st is StaffModel ? st.toJson() : st)).toList(),
       };
+
+  @override
+  ServiceProviderModel copyWith({
+    String? id,
+    String? categoryId,
+    String? name,
+    String? tagline,
+    double? rating,
+    int? reviewCount,
+    double? distanceKm,
+    int? priceMin,
+    int? priceMax,
+    String? address,
+    String? phone,
+    bool? isOpen,
+    bool? isAvailable,
+    bool? isShop,
+    bool? isHomeService,
+    List<Service>? services,
+    List<Review>? reviews,
+    List<Staff>? staffList,
+  }) {
+    return ServiceProviderModel(
+      id: id ?? this.id,
+      categoryId: categoryId ?? this.categoryId,
+      name: name ?? this.name,
+      tagline: tagline ?? this.tagline,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
+      distanceKm: distanceKm ?? this.distanceKm,
+      priceMin: priceMin ?? this.priceMin,
+      priceMax: priceMax ?? this.priceMax,
+      address: address ?? this.address,
+      phone: phone ?? this.phone,
+      isOpen: isOpen ?? this.isOpen,
+      isAvailable: isAvailable ?? this.isAvailable,
+      isShop: isShop ?? this.isShop,
+      isHomeService: isHomeService ?? this.isHomeService,
+      services: services ?? this.services,
+      reviews: reviews ?? this.reviews,
+      staffList: staffList ?? this.staffList,
+    );
+  }
 }

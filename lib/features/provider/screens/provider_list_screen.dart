@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_error_state.dart';
-import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/skeletons/provider_card_skeleton.dart';
+import '../../../core/widgets/animations/staggered_entrance.dart';
+import '../../../core/widgets/animations/app_scale_button.dart';
 import '../providers/provider_list_provider.dart';
 import '../widgets/provider_card.dart';
 import '../widgets/sort_filter_bar.dart';
 
-/// Phase 3 — providers in one category, with client-side sorting.
+/// Phase 3 — providers in one category, with client-side sorting and animations.
 class ProviderListScreen extends StatefulWidget {
   const ProviderListScreen({
     super.key,
@@ -28,7 +30,6 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
   @override
   void initState() {
     super.initState();
-    // Deferring keeps notifyListeners out of the build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<ProviderListProvider>().fetchProviders(widget.categoryId);
@@ -46,7 +47,14 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
       ),
       body: Consumer<ProviderListProvider>(
         builder: (context, list, _) {
-          if (list.isLoading) return const AppLoadingIndicator();
+          if (list.isLoading) {
+            return ListView.separated(
+              padding: const EdgeInsets.all(AppConstants.spaceMd),
+              itemCount: 6,
+              separatorBuilder: (context, index) => const SizedBox(height: AppConstants.spaceMd),
+              itemBuilder: (context, index) => const ProviderCardSkeleton(),
+            );
+          }
 
           if (list.error != null) {
             return AppErrorState(
@@ -86,11 +94,20 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
                       const SizedBox(height: AppConstants.spaceMd),
                   itemBuilder: (context, index) {
                     final provider = providers[index];
-                    return ProviderCard(
-                      provider: provider,
-                      onTap: () => context.push(
-                        '/provider/${provider.id}'
-                        '?name=${Uri.encodeComponent(provider.name)}',
+                    return StaggeredEntrance(
+                      index: index,
+                      child: AppScaleButton(
+                        onTap: () => context.push(
+                          '/provider/${provider.id}'
+                          '?name=${Uri.encodeComponent(provider.name)}',
+                        ),
+                        child: ProviderCard(
+                          provider: provider,
+                          onTap: () => context.push(
+                            '/provider/${provider.id}'
+                            '?name=${Uri.encodeComponent(provider.name)}',
+                          ),
+                        ),
                       ),
                     );
                   },

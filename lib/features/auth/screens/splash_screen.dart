@@ -65,38 +65,14 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Gradient logo mark
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppTheme.primary, AppTheme.accent],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(AppConstants.radiusLg + 4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primary.withAlpha(80),
-                        blurRadius: 30,
-                        offset: const Offset(0, 12),
-                      ),
-                    ],
+                // App logo mark
+                SizedBox(
+                  height: 160,
+                  child: Image.asset(
+                    'assets/images/app_logo.png',
+                    height: 160,
+                    fit: BoxFit.contain,
                   ),
-                  child: const Icon(
-                    Icons.home_repair_service_rounded,
-                    color: Colors.white,
-                    size: 52,
-                  ),
-                ),
-                const SizedBox(height: AppConstants.spaceLg),
-                Text(
-                  'BookLocal',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: AppTheme.primary,
-                        letterSpacing: -1,
-                      ),
                 ),
                 const SizedBox(height: AppConstants.spaceSm),
                 Text(

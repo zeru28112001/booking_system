@@ -1,14 +1,19 @@
+import '../../../provider_portal/domain/entities/payment_method_config.dart';
 import '../entities/booking.dart';
 import '../entities/time_slot.dart';
 
 /// Booking-flow contract: slots, create, list, detail, cancel.
 /// Implemented by BookingRepositoryImpl; consumed only by BookingProvider.
 abstract class BookingRepository {
+  /// Available payment methods for a provider
+  Future<List<PaymentMethodConfig>> getProviderPaymentMethods(String providerId);
+
   /// Available slots for one provider on one 'yyyy-MM-dd' date, optionally filtered by staffId.
   Future<List<TimeSlot>> getTimeSlots({
     required String providerId,
     required String date,
     String? staffId,
+    int? durationMinutes,
   });
 
   /// Creates a booking in 'pending' status and returns it.

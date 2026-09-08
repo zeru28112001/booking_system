@@ -5,7 +5,9 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_error_state.dart';
-import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/skeletons/category_grid_skeleton.dart';
+import '../../../core/widgets/animations/staggered_entrance.dart';
+import '../../../core/widgets/animations/app_scale_button.dart';
 import '../domain/entities/category.dart';
 import '../providers/home_provider.dart';
 import '../widgets/category_tile.dart';
@@ -74,9 +76,25 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const HomeSearchBar(hint: 'Search services or providers'),
               const SizedBox(height: AppConstants.spaceMd),
-              const PromoBanner(
-                title: '20% off your first booking',
-                subtitle: 'New to BookLocal? Try a top-rated local pro.',
+              Consumer<HomeProvider>(
+                builder: (context, home, _) {
+                  return PromoBannerCarousel(
+                    banners: home.banners,
+                    onBannerTap: (banner) {
+                      if (banner.targetCategoryId != null && banner.targetCategoryId!.isNotEmpty) {
+                        final cat = home.categories.firstWhere(
+                          (c) => c.id == banner.targetCategoryId,
+                          orElse: () => Category(
+                            id: banner.targetCategoryId!,
+                            name: banner.title,
+                            iconName: banner.iconName,
+                          ),
+                        );
+                        _openCategory(cat);
+                      }
+                    },
+                  );
+                },
               ),
               const SizedBox(height: AppConstants.spaceLg),
               Align(
@@ -102,10 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget? _,
   ) {
     if (home.isLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: AppConstants.spaceXxl),
-        child: AppLoadingIndicator(),
-      );
+      return const CategoryGridSkeleton(itemCount: 8);
     }
 
     if (home.error != null) {
@@ -132,13 +147,19 @@ class _HomeScreenState extends State<HomeScreen> {
         maxCrossAxisExtent: 130,
         mainAxisSpacing: AppConstants.spaceMd,
         crossAxisSpacing: AppConstants.spaceMd,
-        childAspectRatio: 0.95,
+        childAspectRatio: 0.85,
       ),
       itemBuilder: (context, index) {
         final category = home.categories[index];
-        return CategoryTile(
-          category: category,
-          onTap: () => _openCategory(category),
+        return StaggeredEntrance(
+          index: index,
+          child: AppScaleButton(
+            onTap: () => _openCategory(category),
+            child: CategoryTile(
+              category: category,
+              onTap: () => _openCategory(category),
+            ),
+          ),
         );
       },
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'admin_dashboard_screen.dart';
+import 'admin_banners_screen.dart';
 import 'admin_profile_screen.dart';
 
 class AdminShellScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
 
   final List<Widget> _screens = const [
     AdminDashboardScreen(),
+    AdminBannersScreen(),
     AdminProfileScreen(),
   ];
 
@@ -48,6 +50,11 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
               icon: Icon(Icons.admin_panel_settings_outlined),
               selectedIcon: Icon(Icons.admin_panel_settings_rounded),
               label: 'Admin Portal',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.view_carousel_outlined),
+              selectedIcon: Icon(Icons.view_carousel_rounded),
+              label: 'Banners',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline_rounded),

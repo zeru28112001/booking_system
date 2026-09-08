@@ -1,4 +1,6 @@
+import '../../provider_portal/domain/entities/payment_method_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
@@ -59,6 +61,7 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
   String _selectedDate = AppFormatters.isoDay(DateTime.now());
   String? _selectedTime;
   PaymentMethod _paymentMethod = PaymentMethod.cash;
+  PaymentMethodConfig? _selectedPaymentConfig;
 
   @override
   void initState() {
@@ -67,6 +70,9 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _fetchSlots(_selectedDate);
+      context
+          .read<BookingProvider>()
+          .fetchProviderPaymentMethods(widget.providerId);
     });
   }
 
@@ -82,6 +88,7 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
           providerId: widget.providerId,
           date: date,
           staffId: widget.staffId,
+          durationMinutes: widget.durationMinutes,
         );
   }
 
@@ -113,6 +120,20 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
         ? _addressController.text.trim()
         : 'At Salon (${widget.providerAddress.isNotEmpty ? widget.providerAddress : 'Shop Location'})';
 
+    final activeConfig = _selectedPaymentConfig ??
+        (bookingProvider.providerPaymentMethods.isNotEmpty
+            ? bookingProvider.providerPaymentMethods.firstWhere(
+                (m) =>
+                    m.code.toLowerCase() ==
+                    _paymentMethod.value.toLowerCase(),
+                orElse: () => bookingProvider.providerPaymentMethods.first,
+              )
+            : null);
+
+    final paymentMethodParam = activeConfig?.id.isNotEmpty == true
+        ? activeConfig!.id
+        : _paymentMethod.value;
+
     final booking = await bookingProvider.createBooking(
       providerId: widget.providerId,
       providerName: widget.providerName,
@@ -122,7 +143,7 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
       timeSlot: _selectedTime ?? '',
       address: addressToSave,
       notes: _notesController.text.trim(),
-      paymentMethod: _paymentMethod.value,
+      paymentMethod: paymentMethodParam,
       price: widget.price,
       durationMinutes: widget.durationMinutes,
       staffId: widget.staffId,
@@ -386,6 +407,16 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
   }
 
   Widget _buildPaymentStep(ThemeData theme, BookingProvider booking) {
+    final activeConfig = _selectedPaymentConfig ??
+        (booking.providerPaymentMethods.isNotEmpty
+            ? booking.providerPaymentMethods.firstWhere(
+                (m) =>
+                    m.code.toLowerCase() ==
+                    _paymentMethod.value.toLowerCase(),
+                orElse: () => booking.providerPaymentMethods.first,
+              )
+            : null);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -393,7 +424,11 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
         const SizedBox(height: AppConstants.spaceSm),
         PaymentMethodPicker(
           selected: _paymentMethod,
+          methods: booking.providerPaymentMethods,
+          selectedConfig: activeConfig,
           onSelected: (method) => setState(() => _paymentMethod = method),
+          onConfigSelected: (cfg) =>
+              setState(() => _selectedPaymentConfig = cfg),
         ),
         const SizedBox(height: AppConstants.spaceMd),
         Container(
@@ -419,7 +454,10 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
                     ? '—'
                     : AppFormatters.timeLabel(_selectedTime!),
               ),
-              _SummaryRow(label: 'Payment', value: _paymentMethod.label),
+              _SummaryRow(
+                label: 'Payment',
+                value: activeConfig?.name ?? _paymentMethod.label,
+              ),
               const Divider(height: AppConstants.spaceLg),
               Row(
                 children: [
@@ -434,6 +472,111 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
                   ),
                 ],
               ),
+              if (activeConfig != null &&
+                  (activeConfig.accountName.isNotEmpty ||
+                      activeConfig.accountNumber.isNotEmpty ||
+                      activeConfig.instructions.isNotEmpty ||
+                      activeConfig.qrCodeUrl.isNotEmpty)) ...[
+                const SizedBox(height: AppConstants.spaceMd),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppConstants.spaceMd),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withAlpha(12),
+                    borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                    border: Border.all(color: AppTheme.primary.withAlpha(40)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.info_outline_rounded,
+                              size: 18, color: AppTheme.primary),
+                          const SizedBox(width: AppConstants.spaceXs),
+                          Text(
+                            'Payment Info',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppConstants.spaceSm),
+                      if (activeConfig.accountName.isNotEmpty) ...[
+                        Text(
+                          'Account Name: ${activeConfig.accountName}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                      ],
+                      if (activeConfig.accountNumber.isNotEmpty) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Account / Phone: ${activeConfig.accountNumber}',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy_rounded, size: 16),
+                              tooltip: 'Copy account number',
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(
+                                      text: activeConfig.accountNumber),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Account number copied to clipboard'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                      ],
+                      if (activeConfig.instructions.isNotEmpty) ...[
+                        Text(
+                          'Instructions: ${activeConfig.instructions}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                      ],
+                      if (activeConfig.qrCodeUrl.isNotEmpty) ...[
+                        const SizedBox(height: AppConstants.spaceSm),
+                        Center(
+                          child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(AppConstants.radiusSm),
+                            child: Image.network(
+                              activeConfig.qrCodeUrl,
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),

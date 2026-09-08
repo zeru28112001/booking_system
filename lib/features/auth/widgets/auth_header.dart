@@ -23,37 +23,12 @@ class AuthHeader extends StatelessWidget {
       children: [
         if (showLogo) ...[
           // App logo mark
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppTheme.primary, AppTheme.accent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primary.withAlpha(80),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.home_repair_service_rounded,
-              color: Colors.white,
-              size: 36,
-            ),
-          ),
-          const SizedBox(height: AppConstants.spaceMd),
-          // Wordmark
-          Text(
-            'BookLocal',
-            style: theme.textTheme.headlineLarge?.copyWith(
-              color: AppTheme.primary,
-              letterSpacing: -0.5,
+          SizedBox(
+            height: 80,
+            child: Image.asset(
+              'assets/images/app_logo.png',
+              height: 80,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: AppConstants.spaceLg),

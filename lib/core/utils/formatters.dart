@@ -23,13 +23,30 @@ class AppFormatters {
         '${_months[date.month - 1]} ${date.year}';
   }
 
-  /// '13:00' → '1:00 PM'
+  /// '13:00' or '01:00 PM' or '9:00 AM' → '1:00 PM' / '9:00 AM'
   static String timeLabel(String hhmm) {
-    final parts = hhmm.split(':');
-    final hour = int.parse(parts[0]);
+    if (hhmm.isEmpty) return '';
+    final trimmed = hhmm.trim();
+    final upper = trimmed.toUpperCase();
+    if (upper.endsWith('AM') || upper.endsWith('PM')) {
+      final spaceSplit = trimmed.split(' ');
+      final timeParts = spaceSplit[0].split(':');
+      if (timeParts.length == 2) {
+        final hour = int.tryParse(timeParts[0]);
+        if (hour != null) {
+          final hour12 = hour % 12 == 0 ? (hour == 0 ? 12 : hour) : (hour > 12 ? hour - 12 : hour);
+          return '$hour12:${timeParts[1]} ${spaceSplit[1].toUpperCase()}';
+        }
+      }
+      return trimmed;
+    }
+    final parts = trimmed.split(':');
+    if (parts.length < 2) return trimmed;
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minuteParts = parts[1].split(' ');
     final suffix = hour >= 12 ? 'PM' : 'AM';
-    final hour12 = hour % 12 == 0 ? 12 : hour % 12;
-    return '$hour12:${parts[1]} $suffix';
+    final hour12 = hour % 12 == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+    return '$hour12:${minuteParts[0]} $suffix';
   }
 
   /// 90 → '1 hr 30 min'

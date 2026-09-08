@@ -5,7 +5,9 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_error_state.dart';
-import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/skeletons/booking_list_skeleton.dart';
+import '../../../core/widgets/animations/staggered_entrance.dart';
+import '../../../core/widgets/animations/app_scale_button.dart';
 import '../domain/entities/booking.dart';
 import '../providers/booking_provider.dart';
 import '../widgets/booking_card.dart';
@@ -22,7 +24,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   @override
   void initState() {
     super.initState();
-    // Deferring keeps notifyListeners out of the build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<BookingProvider>().fetchMyBookings();
@@ -51,7 +52,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         body: Consumer<BookingProvider>(
           builder: (context, booking, _) {
             if (booking.isLoading && booking.bookings.isEmpty) {
-              return const AppLoadingIndicator();
+              return const Padding(
+                padding: EdgeInsets.all(AppConstants.spaceMd),
+                child: BookingListSkeleton(itemCount: 5),
+              );
             }
 
             if (booking.error != null) {
@@ -109,25 +113,51 @@ class _BookingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (bookings.isEmpty) {
-      return AppEmptyState(
-        icon: emptyIcon,
-        title: emptyTitle,
-        subtitle: emptySubtitle,
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.all(AppConstants.spaceMd),
-      itemCount: bookings.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spaceMd),
-      itemBuilder: (context, index) {
-        final booking = bookings[index];
-        return BookingCard(
-          booking: booking,
-          onTap: () => context.push('/booking/${booking.id}'),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: () => context.read<BookingProvider>().fetchMyBookings(),
+      child: bookings.isEmpty
+          ? SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.6,
+                alignment: Alignment.center,
+                child: AppEmptyState(
+                  icon: emptyIcon,
+                  title: emptyTitle,
+                  subtitle: emptySubtitle,
+                ),
+              ),
+            )
+          : ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppConstants.spaceMd),
+              itemCount: bookings.length,
+              separatorBuilder: (_, _) =>
+                  const SizedBox(height: AppConstants.spaceMd),
+              itemBuilder: (context, index) {
+                final booking = bookings[index];
+                return StaggeredEntrance(
+                  index: index,
+                  child: AppScaleButton(
+                    onTap: () async {
+                      await context.push('/booking/${booking.id}');
+                      if (context.mounted) {
+                        context.read<BookingProvider>().fetchMyBookings();
+                      }
+                    },
+                    child: BookingCard(
+                      booking: booking,
+                      onTap: () async {
+                        await context.push('/booking/${booking.id}');
+                        if (context.mounted) {
+                          context.read<BookingProvider>().fetchMyBookings();
+                        }
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

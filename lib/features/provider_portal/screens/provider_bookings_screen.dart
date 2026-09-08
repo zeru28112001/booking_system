@@ -19,7 +19,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final _tabs = ['All', 'Pending', 'Accepted', 'In Progress', 'Completed'];
+  final _tabs = ['All', 'Pending', 'Accepted', 'In Progress', 'Completed', 'Cancelled'];
 
   @override
   void initState() {
@@ -61,6 +61,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
               _buildBookingList(context, provider, all.where((b) => b.status == 'accepted').toList()),
               _buildBookingList(context, provider, all.where((b) => b.status == 'in_progress').toList()),
               _buildBookingList(context, provider, all.where((b) => b.status == 'completed').toList()),
+              _buildBookingList(context, provider, all.where((b) => b.status == 'cancelled').toList()),
             ],
           );
         },
@@ -74,20 +75,33 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
     List<Booking> list,
   ) {
     if (list.isEmpty) {
-      return const AppEmptyState(
-        icon: Icons.event_busy_rounded,
-        title: 'No bookings found',
-        subtitle: 'There are no bookings matching this status.',
+      return RefreshIndicator(
+        onRefresh: () => provider.fetchAllData(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            alignment: Alignment.center,
+            child: const AppEmptyState(
+              icon: Icons.event_busy_rounded,
+              title: 'No bookings found',
+              subtitle: 'There are no bookings matching this status.',
+            ),
+          ),
+        ),
       );
     }
 
     final theme = Theme.of(context);
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(AppConstants.spaceMd),
-      itemCount: list.length,
-      separatorBuilder: (ctx, i) => const SizedBox(height: AppConstants.spaceSm),
-      itemBuilder: (context, index) {
+    return RefreshIndicator(
+      onRefresh: () => provider.fetchAllData(),
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppConstants.spaceMd),
+        itemCount: list.length,
+        separatorBuilder: (ctx, i) => const SizedBox(height: AppConstants.spaceSm),
+        itemBuilder: (context, index) {
         final booking = list[index];
         final status = booking.status;
 
@@ -173,8 +187,9 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildStatusBadge(String status) {
     Color bg;

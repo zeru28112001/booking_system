@@ -36,7 +36,6 @@ void main() {
       final authRepo = AuthRepositoryImpl(
         authApiService: AuthApiService(apiClient: apiClient),
         apiClient: apiClient,
-        useMock: true,
       );
       final authProvider = AuthProvider(authRepository: authRepo);
 

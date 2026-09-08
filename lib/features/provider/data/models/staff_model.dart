@@ -13,7 +13,7 @@ class StaffModel extends Staff {
 
   factory StaffModel.fromJson(Map<String, dynamic> json) {
     return StaffModel(
-      id: json['id'] as String? ?? '',
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
       name: json['name'] as String? ?? '',
       role: json['role'] as String? ?? 'Staff Member',
       rating: (json['rating'] as num?)?.toDouble() ?? 5.0,

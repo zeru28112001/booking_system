@@ -8,18 +8,14 @@ import '../services/auth_api_service.dart';
 
 /// Concrete implementation of AuthRepository.
 /// Calls AuthApiService, maps model → entity, persists token.
-///
-/// Set [useMock] to true during Phase 1 / offline development.
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
-    required this._authApiService,
-    required this._apiClient,
-    this.useMock = false,
+    required this.authApiService,
+    required this.apiClient,
   });
 
-  final AuthApiService _authApiService;
-  final ApiClient _apiClient;
-  final bool useMock;
+  final AuthApiService authApiService;
+  final ApiClient apiClient;
 
   static const _prefKeyUser = 'stored_user';
 
@@ -31,11 +27,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
     String role = 'customer',
   }) async {
-    if (useMock) return _mockLogin(phone: phone, password: password, role: role);
-
-    final model = await _authApiService.login(phone: phone, password: password);
+    final model = await authApiService.login(phone: phone, password: password);
     await _persistUser(model);
-    _apiClient.setAuthToken(model.token);
+    apiClient.setAuthToken(model.token);
     return model;
   }
 
@@ -46,15 +40,14 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
     String role = 'customer',
   }) async {
-    if (useMock) return _mockRegister(name: name, phone: phone, role: role);
-
-    final model = await _authApiService.register(
+    final model = await authApiService.register(
       name: name,
       phone: phone,
       password: password,
+      role: role,
     );
     await _persistUser(model);
-    _apiClient.setAuthToken(model.token);
+    apiClient.setAuthToken(model.token);
     return model;
   }
 
@@ -62,13 +55,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_prefKeyUser);
-    _apiClient.clearAuthToken();
-    if (!useMock) {
-      try {
-        await _authApiService.logout();
-      } catch (_) {
-        // Swallow — local logout always succeeds
-      }
+    apiClient.clearAuthToken();
+    try {
+      await authApiService.logout();
+    } catch (_) {
+      // Swallow — local logout always succeeds
     }
   }
 
@@ -80,7 +71,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       final model = UserModel.fromJson(json);
-      _apiClient.setAuthToken(model.token);
+      apiClient.setAuthToken(model.token);
       return model;
     } catch (_) {
       return null;
@@ -92,39 +83,5 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> _persistUser(UserModel model) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefKeyUser, jsonEncode(model.toJson()));
-  }
-
-  // ── Mock responses ────────────────────────────────────────────────────────
-
-  Future<User> _mockLogin({
-    required String phone,
-    required String password,
-    String role = 'customer',
-  }) async {
-    await Future.delayed(const Duration(seconds: 1)); // simulate latency
-    return UserModel(
-      id: '1',
-      name: role == 'admin'
-          ? 'System Admin'
-          : (role == 'provider' ? 'Glow Beauty Studio' : 'Khin Su Su'),
-      phone: phone,
-      role: role,
-      token: 'mock-token-12345',
-    );
-  }
-
-  Future<User> _mockRegister({
-    required String name,
-    required String phone,
-    String role = 'customer',
-  }) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return UserModel(
-      id: '2',
-      name: name,
-      phone: phone,
-      role: role,
-      token: 'mock-token-67890',
-    );
   }
 }

@@ -9,7 +9,7 @@ import '../../../core/widgets/app_error_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../providers/booking_provider.dart';
 import '../widgets/booking_summary_card.dart';
-import '../widgets/status_stepper.dart';
+import '../../../core/widgets/animations/animated_booking_stepper.dart';
 
 /// Phase 4 — one booking: status track, full summary, cancel while pending.
 class BookingDetailScreen extends StatefulWidget {
@@ -79,7 +79,17 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(centerTitle: false, title: const Text('Booking details')),
+      appBar: AppBar(
+        centerTitle: false,
+        title: const Text('Booking details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home_rounded),
+            tooltip: 'Go Home',
+            onPressed: () => context.go('/home'),
+          ),
+        ],
+      ),
       body: Consumer<BookingProvider>(
         builder: (context, booking, _) {
           if (booking.isLoading && booking.booking == null) {
@@ -113,7 +123,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               children: [
                 Text('Status', style: theme.textTheme.titleLarge),
                 const SizedBox(height: AppConstants.spaceMd),
-                StatusStepper(status: current.status),
+                AnimatedBookingStepper(status: current.status),
                 const SizedBox(height: AppConstants.spaceLg),
                 BookingSummaryCard(booking: current),
                 const SizedBox(height: AppConstants.spaceMd),
@@ -136,10 +146,21 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               child: Container(
                 color: AppTheme.surface,
                 padding: const EdgeInsets.all(AppConstants.spaceMd),
-                child: AppOutlinedButton(
-                  label: 'Cancel Booking',
-                  icon: Icons.cancel_outlined,
-                  onPressed: booking.isSubmitting ? null : _confirmCancel,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppOutlinedButton(
+                      label: 'Cancel Booking',
+                      icon: Icons.cancel_outlined,
+                      onPressed: booking.isSubmitting ? null : _confirmCancel,
+                    ),
+                    const SizedBox(height: AppConstants.spaceSm),
+                    AppButton(
+                      label: 'Go Home',
+                      icon: Icons.home_rounded,
+                      onPressed: () => context.go('/home'),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -150,20 +171,41 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               child: Container(
                 color: AppTheme.surface,
                 padding: const EdgeInsets.all(AppConstants.spaceMd),
-                child: AppButton(
-                  label: 'Write a Review',
-                  icon: Icons.rate_review_outlined,
-                  onPressed: () {
-                    context.push('/write-review/${current.providerId}'
-                        '?name=${Uri.encodeComponent(current.providerName)}'
-                        '&bookingId=${current.id}');
-                  },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppButton(
+                      label: 'Write a Review',
+                      icon: Icons.rate_review_outlined,
+                      onPressed: () {
+                        context.push('/write-review/${current.providerId}'
+                            '?name=${Uri.encodeComponent(current.providerName)}'
+                            '&bookingId=${current.id}');
+                      },
+                    ),
+                    const SizedBox(height: AppConstants.spaceSm),
+                    AppOutlinedButton(
+                      label: 'Go Home',
+                      icon: Icons.home_rounded,
+                      onPressed: () => context.go('/home'),
+                    ),
+                  ],
                 ),
               ),
             );
           }
 
-          return const SizedBox.shrink();
+          return SafeArea(
+            child: Container(
+              color: AppTheme.surface,
+              padding: const EdgeInsets.all(AppConstants.spaceMd),
+              child: AppButton(
+                label: 'Go Home',
+                icon: Icons.home_rounded,
+                onPressed: () => context.go('/home'),
+              ),
+            ),
+          );
         },
       ),
     );

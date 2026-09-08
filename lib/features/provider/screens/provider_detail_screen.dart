@@ -117,6 +117,48 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _Header(provider: provider),
+                if (!provider.isAvailable || !provider.isOpen)
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(
+                      left: AppConstants.spaceMd,
+                      right: AppConstants.spaceMd,
+                      top: AppConstants.spaceMd,
+                    ),
+                    padding: const EdgeInsets.all(AppConstants.spaceMd),
+                    decoration: BoxDecoration(
+                      color: AppTheme.warning.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                      border: Border.all(color: AppTheme.warning.withValues(alpha: 0.4)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.storefront_outlined, color: AppTheme.warning, size: 24),
+                        const SizedBox(width: AppConstants.spaceSm),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Shop is Currently Busy / Closed',
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.warning,
+                                    ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'This provider is not taking new bookings right now. Please check back later.',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppTheme.onSurface,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.all(AppConstants.spaceMd),
                   child: Column(
@@ -224,11 +266,15 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                     const SizedBox(height: AppConstants.spaceSm),
                   ],
                   AppButton(
-                    label: selectedList.length > 1
-                        ? 'Book ${selectedList.length} Services (${AppFormatters.currency(totalPrice)})'
-                        : 'Book Now',
-                    icon: Icons.calendar_month_rounded,
-                    onPressed: widget.onBook == null
+                    label: (!provider.isAvailable || !provider.isOpen)
+                        ? 'Shop Currently Closed / Busy'
+                        : selectedList.length > 1
+                            ? 'Book ${selectedList.length} Services (${AppFormatters.currency(totalPrice)})'
+                            : 'Book Now',
+                    icon: (!provider.isAvailable || !provider.isOpen)
+                        ? Icons.block_rounded
+                        : Icons.calendar_month_rounded,
+                    onPressed: (widget.onBook == null || !provider.isAvailable || !provider.isOpen)
                         ? null
                         : () => widget.onBook!(
                               provider,
@@ -319,7 +365,10 @@ class _Header extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GradientAvatar(name: provider.name, size: 72, fontSize: 28),
+          Hero(
+            tag: 'provider-avatar-${provider.id}',
+            child: GradientAvatar(name: provider.name, size: 72, fontSize: 28),
+          ),
           const SizedBox(height: AppConstants.spaceSm),
           Container(
             padding: const EdgeInsets.symmetric(

@@ -13,7 +13,7 @@ class ServiceModel extends Service {
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
-      id: (json['id'] ?? '').toString(),
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
       name: (json['name'] as String?) ?? '',
       group: (json['group'] as String?) ?? '',
       price: (json['price'] as num?)?.toInt() ?? 0,

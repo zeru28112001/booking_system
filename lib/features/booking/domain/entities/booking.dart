@@ -1,3 +1,5 @@
+import '../../../provider_portal/domain/entities/payment_method_config.dart';
+
 /// Domain entity — one booked appointment.
 /// No JSON logic here. No HTTP imports.
 class Booking {
@@ -18,6 +20,8 @@ class Booking {
     required this.createdAt,
     this.staffId,
     this.staffName,
+    this.paymentMethodId,
+    this.paymentMethodConfig,
   });
 
   final String id;
@@ -37,8 +41,11 @@ class Booking {
   final String address;
   final String notes;
 
-  /// 'cash' | 'myanmyanpay' | 'stripe'
+  /// 'cash' | 'myanmyanpay' | 'stripe' or payment code
   final String paymentMethod;
+
+  final String? paymentMethodId;
+  final PaymentMethodConfig? paymentMethodConfig;
 
   /// 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled'
   final String status;
@@ -50,7 +57,12 @@ class Booking {
   /// ISO-8601 creation timestamp.
   final String createdAt;
 
-  Booking copyWith({String? status}) => Booking(
+  Booking copyWith({
+    String? status,
+    String? paymentMethodId,
+    PaymentMethodConfig? paymentMethodConfig,
+  }) =>
+      Booking(
         id: id,
         providerId: providerId,
         providerName: providerName,
@@ -63,6 +75,8 @@ class Booking {
         address: address,
         notes: notes,
         paymentMethod: paymentMethod,
+        paymentMethodId: paymentMethodId ?? this.paymentMethodId,
+        paymentMethodConfig: paymentMethodConfig ?? this.paymentMethodConfig,
         status: status ?? this.status,
         price: price,
         durationMinutes: durationMinutes,

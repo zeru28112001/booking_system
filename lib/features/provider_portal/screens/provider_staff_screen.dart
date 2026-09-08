@@ -142,6 +142,7 @@ class ProviderStaffScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () => _openSheet(context),
         icon: const Icon(Icons.person_add_rounded),
         label: const Text('Add Staff'),

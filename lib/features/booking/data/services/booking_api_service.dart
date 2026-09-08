@@ -1,3 +1,4 @@
+import '../../../provider_portal/domain/entities/payment_method_config.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/booking_model.dart';
 import '../models/time_slot_model.dart';
@@ -9,16 +10,31 @@ class BookingApiService {
 
   final ApiClient _apiClient;
 
+  /// GET /providers/{providerId}/payment-methods
+  Future<List<PaymentMethodConfig>> getProviderPaymentMethods(
+      String providerId) async {
+    final data =
+        await _apiClient.get('/providers/$providerId/payment-methods');
+    return _asList(data)
+        .map((item) =>
+            PaymentMethodConfig.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
   /// GET /providers/{providerId}/slots?date=yyyy-MM-dd[&staffId=id]
   Future<List<TimeSlotModel>> getTimeSlots({
     required String providerId,
     required String date,
     String? staffId,
+    int? durationMinutes,
   }) async {
     var path =
         '/providers/$providerId/slots?date=${Uri.encodeComponent(date)}';
     if (staffId != null && staffId.isNotEmpty) {
       path += '&staff_id=${Uri.encodeComponent(staffId)}';
+    }
+    if (durationMinutes != null && durationMinutes > 0) {
+      path += '&duration=$durationMinutes';
     }
     final data = await _apiClient.get(path);
     return _asList(data)

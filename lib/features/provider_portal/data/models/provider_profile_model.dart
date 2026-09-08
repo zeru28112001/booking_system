@@ -18,9 +18,9 @@ class ProviderProfileModel extends ProviderProfile {
 
   factory ProviderProfileModel.fromJson(Map<String, dynamic> json) {
     return ProviderProfileModel(
-      id: json['id'] as String? ?? '',
-      shopName: json['shop_name'] as String? ?? json['shopName'] as String? ?? '',
-      categoryName: json['category_name'] as String? ?? json['categoryName'] as String? ?? '',
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      shopName: json['shopName'] as String? ?? json['shop_name'] as String? ?? json['name'] as String? ?? '',
+      categoryName: json['categoryName'] as String? ?? json['category_name'] as String? ?? '',
       description: json['description'] as String? ?? '',
       address: json['address'] as String? ?? '',
       phone: json['phone'] as String? ?? '',

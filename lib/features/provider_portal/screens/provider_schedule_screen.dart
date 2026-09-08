@@ -15,7 +15,7 @@ class ProviderScheduleScreen extends StatefulWidget {
 }
 
 class _ProviderScheduleScreenState extends State<ProviderScheduleScreen> {
-  late List<DaySchedule> _days;
+  List<DaySchedule> _days = [];
   bool _initialized = false;
 
   @override

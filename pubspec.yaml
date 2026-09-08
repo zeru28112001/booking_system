@@ -31,6 +31,10 @@ dependencies:
   # Token persistence
   shared_preferences: ^2.3.2
 
+  # WebSocket Real-Time Client
+  socket_io_client: ^3.0.2
+  shimmer: ^4.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -41,3 +45,4 @@ flutter:
 
   assets:
     - .env
+    - assets/images/app_logo.png

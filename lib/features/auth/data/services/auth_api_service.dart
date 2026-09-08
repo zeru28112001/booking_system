@@ -13,11 +13,12 @@ class AuthApiService {
     required String phone,
     required String password,
   }) async {
-    final data = await _apiClient.post('/auth/login', body: {
+    final responseData = await _apiClient.post('/auth/login', body: {
       'phone': phone,
       'password': password,
     }) as Map<String, dynamic>;
 
+    final data = (responseData['data'] as Map<String, dynamic>?) ?? responseData;
     return UserModel.fromJson(data);
   }
 
@@ -26,14 +27,16 @@ class AuthApiService {
     required String name,
     required String phone,
     required String password,
+    String role = 'customer',
   }) async {
-    final data = await _apiClient.post('/auth/register', body: {
+    final responseData = await _apiClient.post('/auth/register', body: {
       'name': name,
       'phone': phone,
       'password': password,
-      'role': 'customer', // MVP: customer only
+      'role': role,
     }) as Map<String, dynamic>;
 
+    final data = (responseData['data'] as Map<String, dynamic>?) ?? responseData;
     return UserModel.fromJson(data);
   }
 

@@ -106,6 +106,41 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     );
   }
 
+  Future<void> _showAvailabilityConfirmationDialog(
+    BuildContext context,
+    ProviderPortalProvider provider,
+    bool newStatus,
+  ) async {
+    final statusText = newStatus ? 'Available' : 'Busy / Closed';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Confirm Status Change'),
+        content: Text(
+          'Are you sure you want to change your shop status to "$statusText"?\n\n'
+          '${newStatus ? "Customers will now be able to book services with your shop." : "When set to Busy / Closed, customers will not be able to make new bookings."}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: newStatus ? AppTheme.success : AppTheme.warning,
+            ),
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: Text('Confirm ($statusText)'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await provider.toggleAvailability(newStatus);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -224,11 +259,12 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                 const SizedBox(height: AppConstants.spaceLg),
 
                 // FR-20: Business Real-time Availability
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface,
+                Material(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                    border: Border.all(color: AppTheme.divider),
+                    side: const BorderSide(color: AppTheme.divider),
                   ),
                   child: SwitchListTile(
                     title: const Text('Store Status', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -245,7 +281,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                     activeThumbColor: AppTheme.success,
                     value: provider.isAvailable,
                     onChanged: (val) {
-                      provider.toggleAvailability(val);
+                      _showAvailabilityConfirmationDialog(context, provider, val);
                     },
                   ),
                 ),
@@ -260,6 +296,13 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                   title: 'Weekly Working Hours',
                   subtitle: 'Set open days, start & end times',
                   onTap: () => context.push('/provider-schedule'),
+                ),
+                _buildActionTile(
+                  context,
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'Manage Payment Methods',
+                  subtitle: 'Configure accepted payment options (Cash, Mobile Wallet, Bank QR)',
+                  onTap: () => context.push('/provider-payment-methods'),
                 ),
                 _buildActionTile(
                   context,
@@ -280,11 +323,12 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                 // Account & Session
                 Text('Account', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: AppConstants.spaceSm),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface,
+                Material(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                    border: Border.all(color: AppTheme.divider),
+                    side: const BorderSide(color: AppTheme.divider),
                   ),
                   child: ListTile(
                     leading: const Icon(Icons.logout_rounded, color: AppTheme.error),
@@ -313,19 +357,22 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppConstants.spaceSm),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppConstants.spaceSm),
+      child: Material(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(color: AppTheme.divider),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: AppTheme.primary),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle, style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          side: const BorderSide(color: AppTheme.divider),
+        ),
+        child: ListTile(
+          leading: Icon(icon, color: AppTheme.primary),
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(subtitle, style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: onTap,
+        ),
       ),
     );
   }

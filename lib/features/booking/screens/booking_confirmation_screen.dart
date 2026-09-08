@@ -7,6 +7,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_error_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/animations/animated_success_checkmark.dart';
 import '../providers/booking_provider.dart';
 import '../widgets/booking_summary_card.dart';
 
@@ -68,24 +69,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
             child: Column(
               children: [
                 const SizedBox(height: AppConstants.spaceMd),
-                Container(
-                  width: 88,
-                  height: 88,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [AppTheme.primary, AppTheme.accent],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.check_rounded,
-                    size: 44,
-                    color: AppTheme.onPrimary,
-                  ),
-                ),
+                const AnimatedSuccessCheckmark(size: 88),
                 const SizedBox(height: AppConstants.spaceLg),
                 Text('Booking Confirmed!', style: theme.textTheme.headlineLarge),
                 const SizedBox(height: AppConstants.spaceSm),

@@ -97,6 +97,41 @@ Rules ကို base ပြုပြီး **UI/UX design phase** အားလ�
 
 ---
 
+Phase 16: UI Polish — Animation & Loading States
+Sub-phase 16.1: Skeleton Loading
+□ core/widgets/skeletons/ folder ဆောက်
+□ shimmer package add (flutter pub add shimmer)
+□ Skeleton widget တစ်ခုချင်းစီ ဆောက် — provider card skeleton, category grid skeleton, booking list item skeleton
+□ Loading state (Consumer/provider.isLoading = true) ထဲမှာ skeleton widget တွေ display
+□ Skeleton layout က actual content layout နဲ့ dimension တူရမယ် (layout shift မဖြစ်အောင်)
+Sub-phase 16.2: Page Transition Animation
+□ go_router (or Navigator) ရဲ့ custom page transition define
+□ Screen-to-screen navigation — slide/fade transition (e.g. provider detail screen fade-in)
+□ Hero animation — provider card image → detail screen image (smooth transition)
+Sub-phase 16.3: Micro-interactions
+□ Button press animation (scale/opacity feedback on tap)
+□ Category card tap — ripple/scale effect
+□ Booking confirm — success checkmark animation (e.g. Lottie or custom AnimatedIcon)
+□ Star rating selector — tap animation (star fill transition)
+Sub-phase 16.4: List/Content Animation
+□ ListView item entrance animation (staggered fade-in when list loads)
+□ Pull-to-refresh custom animation
+□ Empty state illustration + subtle animation (e.g. floating icon)
+Sub-phase 16.5: Status/Progress Animation
+□ Booking status stepper — animated progress indicator (Pending→Accepted→Completed step transition)
+□ Loading spinner → custom branded loading animation (replace default CircularProgressIndicator)
+Sub-phase 16.6: Bottom Sheet & Dialog Animation
+□ showModalBottomSheet custom transition curve (per project rules — booking form)
+□ Dialog entrance/exit animation (scale + fade)
+Sub-phase 16.7: Package Setup (if needed)
+□ shimmer — skeleton loading effect
+□ lottie — complex animations (optional, e.g. success checkmark, empty state)
+□ flutter_animate — declarative animation helper (optional, simplifies animation code)
+Sub-phase 16.8: Testing & Performance
+□ Animation frame rate check (60fps target, no jank)
+□ Reduce animation on low-end device consideration (optional accessibility toggle)
+□ flutter analyze clean
+
 ## 📌 Feature Folder Mapping
 
 ```

@@ -66,7 +66,6 @@ void main() {
         providerPortalApiService: ProviderPortalApiService(
           apiClient: ApiClient(baseUrl: 'http://localhost'),
         ),
-        useMock: true,
       );
 
       final initialServices = await repo.getServices();
@@ -110,7 +109,6 @@ void main() {
         providerPortalApiService: ProviderPortalApiService(
           apiClient: ApiClient(baseUrl: 'http://localhost'),
         ),
-        useMock: true,
       );
       final provider = ProviderPortalProvider(providerPortalRepository: repo);
 

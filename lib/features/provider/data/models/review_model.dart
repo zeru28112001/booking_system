@@ -13,7 +13,7 @@ class ReviewModel extends Review {
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
-      id: (json['id'] ?? '').toString(),
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
       authorName: (json['author_name'] as String?) ??
           (json['authorName'] as String?) ??
           '',

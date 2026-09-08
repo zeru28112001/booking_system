@@ -1,3 +1,4 @@
+import '../../../provider_portal/domain/entities/payment_method_config.dart';
 import '../../domain/entities/booking.dart';
 
 /// Data-layer DTO — extends Booking and adds JSON (de)serialization.
@@ -20,11 +21,28 @@ class BookingModel extends Booking {
     required super.createdAt,
     super.staffId,
     super.staffName,
+    super.paymentMethodId,
+    super.paymentMethodConfig,
+    this.customerId,
   });
 
+  final String? customerId;
+
   factory BookingModel.fromJson(Map<String, dynamic> json) {
+    PaymentMethodConfig? pmConfig;
+    String? pmId;
+
+    final pmIdRaw = json['paymentMethodId'] ?? json['payment_method_id'];
+    if (pmIdRaw is Map<String, dynamic>) {
+      pmConfig = PaymentMethodConfig.fromJson(pmIdRaw);
+      pmId = pmConfig.id;
+    } else if (pmIdRaw != null) {
+      pmId = pmIdRaw.toString();
+    }
+
     return BookingModel(
-      id: (json['id'] ?? '').toString(),
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      customerId: (json['customer_id'] ?? json['customerId'] ?? '').toString(),
       providerId: (json['provider_id'] ?? json['providerId'] ?? '').toString(),
       providerName: (json['provider_name'] as String?) ??
           (json['providerName'] as String?) ??
@@ -42,6 +60,8 @@ class BookingModel extends Booking {
           '',
       address: (json['address'] as String?) ?? '',
       notes: (json['notes'] as String?) ?? '',
+      paymentMethodId: pmId,
+      paymentMethodConfig: pmConfig,
       paymentMethod: (json['payment_method'] as String?) ??
           (json['paymentMethod'] as String?) ??
           'cash',
@@ -69,6 +89,7 @@ class BookingModel extends Booking {
         'address': address,
         'notes': notes,
         'payment_method': paymentMethod,
+        'payment_method_id': paymentMethodId,
         'status': status,
         'price': price,
         'duration_minutes': durationMinutes,
@@ -76,8 +97,14 @@ class BookingModel extends Booking {
       };
 
   @override
-  BookingModel copyWith({String? status}) => BookingModel(
+  BookingModel copyWith({
+    String? status,
+    String? paymentMethodId,
+    PaymentMethodConfig? paymentMethodConfig,
+  }) =>
+      BookingModel(
         id: id,
+        customerId: customerId,
         providerId: providerId,
         providerName: providerName,
         serviceId: serviceId,
@@ -89,6 +116,8 @@ class BookingModel extends Booking {
         address: address,
         notes: notes,
         paymentMethod: paymentMethod,
+        paymentMethodId: paymentMethodId ?? this.paymentMethodId,
+        paymentMethodConfig: paymentMethodConfig ?? this.paymentMethodConfig,
         status: status ?? this.status,
         price: price,
         durationMinutes: durationMinutes,
