@@ -515,6 +515,7 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
                             MaterialPageRoute(builder: (_) => const MapLocationPickerScreen()),
                           );
                           if (newLoc != null && newLoc is SavedLocation) {
+                            if (!context.mounted) return;
                             final updatedLocs = context.read<ProfileProvider>().profile?.savedLocations ?? [];
                             final match = updatedLocs.firstWhere(
                               (l) => l.id == newLoc.id || (l.label == newLoc.label && l.address == newLoc.address),
