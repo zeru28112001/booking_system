@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import '../../constants/app_constants.dart';
 import '../../theme/app_theme.dart';
 
-/// Reusable Shimmer container wrapper for skeleton loading states.
+/// Static skeleton loading placeholder — no animation to avoid layout issues.
 class SkeletonContainer extends StatelessWidget {
   const SkeletonContainer({
     super.key,
@@ -24,21 +23,14 @@ class SkeletonContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
-      child: Shimmer.fromColors(
-        baseColor: AppTheme.divider.withAlpha(120),
-        highlightColor: AppTheme.surface,
-        period: const Duration(milliseconds: 1200),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: AppTheme.surfaceVariant,
-            shape: shape,
-            borderRadius: shape == BoxShape.rectangle
-                ? BorderRadius.circular(borderRadius)
-                : null,
-          ),
-        ),
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: AppTheme.divider.withAlpha(80),
+        shape: shape,
+        borderRadius: shape == BoxShape.rectangle
+            ? BorderRadius.circular(borderRadius)
+            : null,
       ),
     );
   }

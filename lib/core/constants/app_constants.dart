@@ -31,5 +31,5 @@ class AppConstants {
 
   // ── Home ──────────────────────────────────────────────────────────────────
   /// Shown in the Home app bar until real location detection exists.
-  static const String defaultLocation = 'Yangon';
+  static const String defaultLocation = 'Select Location';
 }

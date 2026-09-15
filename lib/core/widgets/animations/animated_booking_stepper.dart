@@ -3,7 +3,7 @@ import '../../constants/app_constants.dart';
 import '../../theme/app_theme.dart';
 
 /// Animated step progress widget for booking status tracking.
-class AnimatedBookingStepper extends StatefulWidget {
+class AnimatedBookingStepper extends StatelessWidget {
   const AnimatedBookingStepper({
     super.key,
     required this.status,
@@ -11,34 +11,6 @@ class AnimatedBookingStepper extends StatefulWidget {
 
   /// Status string: 'pending', 'accepted', 'completed', 'cancelled'
   final String status;
-
-  @override
-  State<AnimatedBookingStepper> createState() => _AnimatedBookingStepperState();
-}
-
-class _AnimatedBookingStepperState extends State<AnimatedBookingStepper>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
 
   int _getStepIndex(String status) {
     switch (status.toLowerCase()) {
@@ -58,7 +30,7 @@ class _AnimatedBookingStepperState extends State<AnimatedBookingStepper>
 
   @override
   Widget build(BuildContext context) {
-    final activeStep = _getStepIndex(widget.status);
+    final activeStep = _getStepIndex(status);
     final isCancelled = activeStep == -1;
 
     if (isCancelled) {
@@ -121,92 +93,125 @@ class _AnimatedBookingStepperState extends State<AnimatedBookingStepper>
       ),
       child: Column(
         children: [
+          // Step Icons Row with Connector Lines
           Row(
-            children: List.generate(steps.length, (index) {
-              final isCompleted = index < activeStep;
-              final isCurrent = index == activeStep;
-
-              return Expanded(
-                child: Row(
-                  children: [
-                    // Step circle icon
-                    ScaleTransition(
-                      scale: isCurrent ? _pulseAnimation : const AlwaysStoppedAnimation(1.0),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOut,
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isCompleted || isCurrent
-                              ? AppTheme.primary
-                              : AppTheme.divider.withAlpha(120),
-                          boxShadow: isCurrent
-                              ? [
-                                  BoxShadow(
-                                    color: AppTheme.primary.withAlpha(100),
-                                    blurRadius: 8,
-                                    spreadRadius: 2,
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Icon(
-                          steps[index]['icon'] as IconData,
-                          size: 18,
-                          color: isCompleted || isCurrent
-                              ? AppTheme.onPrimary
-                              : AppTheme.textHint,
-                        ),
-                      ),
-                    ),
-                    // Connector line (unless last step)
-                    if (index < steps.length - 1)
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 3,
-                              color: AppTheme.divider.withAlpha(120),
-                            ),
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 600),
-                              curve: Curves.easeInOutCubic,
-                              height: 3,
-                              width: isCompleted
-                                  ? double.infinity
-                                  : (isCurrent ? 50 : 0),
-                              color: AppTheme.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
+            children: [
+              for (var i = 0; i < steps.length; i++) ...[
+                SizedBox(
+                  width: 70,
+                  child: Center(
+                    child: i == activeStep
+                        ? _PulsingStep(
+                            icon: steps[i]['icon'] as IconData,
+                            isActive: true,
+                            isCompleted: true,
+                          )
+                        : _PulsingStep(
+                            icon: steps[i]['icon'] as IconData,
+                            isActive: false,
+                            isCompleted: i < activeStep,
+                          ),
+                  ),
                 ),
-              );
-            }),
+                if (i < steps.length - 1)
+                  Expanded(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeInOutCubic,
+                      height: 3,
+                      color: i < activeStep
+                          ? AppTheme.primary
+                          : AppTheme.divider.withAlpha(120),
+                    ),
+                  ),
+              ],
+            ],
           ),
           const SizedBox(height: AppConstants.spaceSm),
+          // Step Titles Row aligned with Icons
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(steps.length, (index) {
-              final isCurrent = index == activeStep;
-              final isCompleted = index <= activeStep;
-              return SizedBox(
-                width: 70,
-                child: Text(
-                  steps[index]['title'] as String,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
-                        color: isCompleted ? AppTheme.primary : AppTheme.textHint,
-                      ),
+            children: [
+              for (var i = 0; i < steps.length; i++) ...[
+                SizedBox(
+                  width: 70,
+                  child: Text(
+                    steps[i]['title'] as String,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight:
+                              i == activeStep ? FontWeight.w700 : FontWeight.w500,
+                          color: i <= activeStep
+                              ? AppTheme.primary
+                              : AppTheme.textHint,
+                        ),
+                  ),
                 ),
-              );
-            }),
+                if (i < steps.length - 1) const Expanded(child: SizedBox()),
+              ],
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A single step circle that pulses when active using TweenAnimationBuilder
+/// (no AnimationController needed — avoids layout-phase assertions).
+class _PulsingStep extends StatelessWidget {
+  const _PulsingStep({
+    required this.icon,
+    required this.isActive,
+    required this.isCompleted,
+  });
+
+  final IconData icon;
+  final bool isActive;
+  final bool isCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isActive) {
+      return Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isCompleted ? AppTheme.primary : AppTheme.divider.withAlpha(120),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: isCompleted ? AppTheme.onPrimary : AppTheme.textHint,
+        ),
+      );
+    }
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 1.0, end: 1.12),
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeInOut,
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: child,
+        );
+      },
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppTheme.primary,
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primary.withAlpha(100),
+              blurRadius: 8,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Icon(icon, size: 18, color: AppTheme.onPrimary),
       ),
     );
   }

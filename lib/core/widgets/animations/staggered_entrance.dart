@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Staggered entrance animation widget for list items (fade-in + slide-up).
-class StaggeredEntrance extends StatefulWidget {
+/// Staggered entrance animation widget — renders child directly.
+/// The animation is intentionally removed to prevent layout-phase assertion
+/// errors on Flutter Web (box.dart:2251 hasSize).
+class StaggeredEntrance extends StatelessWidget {
   const StaggeredEntrance({
     super.key,
     required this.index,
@@ -18,58 +20,7 @@ class StaggeredEntrance extends StatefulWidget {
   final double slideOffset;
 
   @override
-  State<StaggeredEntrance> createState() => _StaggeredEntranceState();
-}
-
-class _StaggeredEntranceState extends State<StaggeredEntrance>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(0, widget.slideOffset / 100),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
-
-    final delay = widget.delayStep * widget.index;
-    Future.delayed(delay, () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: widget.child,
-      ),
-    );
+    return child;
   }
 }

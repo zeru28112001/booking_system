@@ -13,6 +13,7 @@ class SocketService {
   final List<void Function(dynamic data)> _bookingCreatedListeners = [];
   final List<void Function(dynamic data)> _bookingUpdatedListeners = [];
   final List<void Function(dynamic data)> _providerUpdatedListeners = [];
+  final List<void Function(bool isMaintenanceMode)> _maintenanceListeners = [];
 
   bool get isConnected => _isConnected;
 
@@ -83,6 +84,14 @@ class SocketService {
     _socket!.on('global_provider_updated', (data) {
       debugPrint('⚡️ [SocketService] global_provider_updated event received');
       _notifyProviderUpdated(data);
+    });
+
+    _socket!.on('maintenance_mode_changed', (data) {
+      final isOn = (data is Map && data['isMaintenanceMode'] == true);
+      debugPrint('🔧 [SocketService] maintenance_mode_changed: $isOn');
+      for (final cb in List<void Function(bool)>.from(_maintenanceListeners)) {
+        try { cb(isOn); } catch (_) {}
+      }
     });
   }
 
@@ -165,6 +174,16 @@ class SocketService {
     _providerUpdatedListeners.remove(callback);
   }
 
+  void onMaintenanceModeChanged(void Function(bool isMaintenanceMode) callback) {
+    if (!_maintenanceListeners.contains(callback)) {
+      _maintenanceListeners.add(callback);
+    }
+  }
+
+  void removeMaintenanceModeListener(void Function(bool isMaintenanceMode) callback) {
+    _maintenanceListeners.remove(callback);
+  }
+
   void disconnect() {
     _socket?.disconnect();
     _socket = null;
@@ -173,5 +192,6 @@ class SocketService {
     _bookingCreatedListeners.clear();
     _bookingUpdatedListeners.clear();
     _providerUpdatedListeners.clear();
+    _maintenanceListeners.clear();
   }
 }

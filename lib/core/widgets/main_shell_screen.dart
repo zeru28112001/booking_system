@@ -23,16 +23,16 @@ class _MainShellScreenState extends State<MainShellScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
+      body: KeyedSubtree(
+        key: ValueKey(_currentIndex),
+        child: [
           HomeScreen(
             onLogout: widget.onLogout,
             onViewBookings: () => setState(() => _currentIndex = 1),
           ),
           const MyBookingsScreen(),
           const ProfileScreen(),
-        ],
+        ][_currentIndex],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
