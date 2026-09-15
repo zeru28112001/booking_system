@@ -33,6 +33,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return Icons.payments_outlined;
       case 'promo':
         return Icons.local_offer_outlined;
+      case 'review':
+        return Icons.star_rate_rounded;
       default:
         return Icons.notifications_none_rounded;
     }
@@ -52,6 +54,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return const Color(0xFFF59E0B);
       case 'promo':
         return const Color(0xFF8B5CF6);
+      case 'review':
+        return const Color(0xFFEC4899);
       default:
         return const Color(0xFF64748B);
     }
@@ -59,8 +63,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
