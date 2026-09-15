@@ -8,6 +8,7 @@ import '../../../core/widgets/app_error_state.dart';
 import '../../../core/widgets/skeletons/category_grid_skeleton.dart';
 import '../../../core/widgets/animations/staggered_entrance.dart';
 import '../../../core/widgets/animations/app_scale_button.dart';
+import '../../../core/widgets/notification_bell_icon_button.dart';
 import '../domain/entities/category.dart';
 import '../widgets/promo_banner.dart';
 import '../widgets/category_tile.dart';
@@ -56,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: false,
         title: const _LocationTitle(),
         actions: [
+          const NotificationBellIconButton(),
           if (widget.onViewBookings != null)
             IconButton(
               icon: const Icon(Icons.event_note_outlined),

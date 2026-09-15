@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../core/widgets/notification_bell_icon_button.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/admin_portal_provider.dart';
 
@@ -34,6 +35,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         centerTitle: false,
         title: const Text('Admin Dashboard'),
         actions: [
+          const NotificationBellIconButton(),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Refresh Data',

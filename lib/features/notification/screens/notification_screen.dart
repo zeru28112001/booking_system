@@ -35,6 +35,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return Icons.local_offer_outlined;
       case 'review':
         return Icons.star_rate_rounded;
+      case 'system':
+        return Icons.admin_panel_settings_outlined;
       default:
         return Icons.notifications_none_rounded;
     }
@@ -56,6 +58,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return const Color(0xFF8B5CF6);
       case 'review':
         return const Color(0xFFEC4899);
+      case 'system':
+        return const Color(0xFF0EA5E9);
       default:
         return const Color(0xFF64748B);
     }

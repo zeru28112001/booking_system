@@ -6,6 +6,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../core/widgets/notification_bell_icon_button.dart';
 import '../providers/provider_portal_provider.dart';
 import '../widgets/provider_booking_details_sheet.dart';
 
@@ -38,6 +39,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
         centerTitle: false,
         title: const Text('Provider Dashboard'),
         actions: [
+          const NotificationBellIconButton(),
           Consumer<ProviderPortalProvider>(
             builder: (context, provider, _) {
               final isAvailable = provider.isAvailable;
