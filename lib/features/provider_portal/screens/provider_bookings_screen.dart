@@ -198,26 +198,48 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
               ] else if (status == 'accepted') ...[
                 GestureDetector(
                   onTap: () {},
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                      label: const Text('Mark as In Progress'),
-                      onPressed: () => provider.updateBookingStatus(booking.id, 'in_progress'),
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => provider.updateBookingStatus(booking.id, 'no_show'),
+                          child: const Text('No-Show', style: TextStyle(color: AppTheme.error)),
+                        ),
+                      ),
+                      const SizedBox(width: AppConstants.spaceSm),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                          label: const Text('In Progress'),
+                          onPressed: () => provider.updateBookingStatus(booking.id, 'in_progress'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ] else if (status == 'in_progress') ...[
                 GestureDetector(
                   onTap: () {},
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                      label: const Text('Mark as Completed'),
-                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
-                      onPressed: () => provider.updateBookingStatus(booking.id, 'completed'),
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => provider.updateBookingStatus(booking.id, 'no_show'),
+                          child: const Text('No-Show', style: TextStyle(color: AppTheme.error)),
+                        ),
+                      ),
+                      const SizedBox(width: AppConstants.spaceSm),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+                          label: const Text('Completed'),
+                          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
+                          onPressed: () => provider.updateBookingStatus(booking.id, 'completed'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -256,6 +278,11 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
         bg = AppTheme.success.withAlpha(30);
         fg = AppTheme.success;
         label = 'Completed';
+        break;
+      case 'no_show':
+        bg = Colors.purple.withAlpha(30);
+        fg = Colors.purple;
+        label = 'No-Show';
         break;
       case 'cancelled':
         bg = AppTheme.error.withAlpha(30);
