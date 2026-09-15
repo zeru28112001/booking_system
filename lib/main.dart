@@ -70,8 +70,8 @@ import 'features/admin_portal/screens/admin_shell_screen.dart';
 // ApiClient → *ApiService → *RepositoryImpl → *Provider
 
 final _apiClient = ApiClient(
-  baseUrl: dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:5001/api/v1',
-  apiKey: dotenv.env['API_KEY'] ?? 'bs_live_4469300911156df9e659b03ecaa8594d1f5f9411f5be6fadb1e861730276a705',
+  baseUrl: dotenv.get('API_BASE_URL', fallback: ''),
+  apiKey: dotenv.env['API_KEY'],
 );
 
 final _authApiService = AuthApiService(apiClient: _apiClient);
@@ -387,21 +387,28 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<Scaffol
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
-  final baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:5001/api/v1';
+  final baseUrl = dotenv.get('API_BASE_URL', fallback: '');
   SocketService().init(baseUrl);
 
   try {
     if (kIsWeb) {
-      await Firebase.initializeApp(
-        options: const FirebaseOptions(
-          apiKey: "AIzaSyBoRMWPXX8VT_-zoC01dxbJIwjtJ1tTah4",
-          appId: "1:403293087581:web:booking_system",
-          messagingSenderId: "403293087581",
-          projectId: "booking-1fb15",
-          authDomain: "booking-1fb15.firebaseapp.com",
-          storageBucket: "booking-1fb15.firebasestorage.app",
-        ),
-      );
+      final fbApiKey = dotenv.get('FIREBASE_API_KEY', fallback: '');
+      final fbAppId = dotenv.get('FIREBASE_APP_ID', fallback: '');
+      final fbSenderId = dotenv.get('FIREBASE_MESSAGING_SENDER_ID', fallback: '');
+      final fbProjectId = dotenv.get('FIREBASE_PROJECT_ID', fallback: '');
+
+      if (fbApiKey.isNotEmpty && fbAppId.isNotEmpty) {
+        await Firebase.initializeApp(
+          options: FirebaseOptions(
+            apiKey: fbApiKey,
+            appId: fbAppId,
+            messagingSenderId: fbSenderId,
+            projectId: fbProjectId,
+            authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'],
+            storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
+          ),
+        );
+      }
     } else {
       await Firebase.initializeApp();
     }
