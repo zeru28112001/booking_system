@@ -157,6 +157,26 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: auth.isLoading ? null : _onLogin,
                           ),
                         ),
+                        const SizedBox(height: AppConstants.spaceMd),
+
+                        // Firebase Phone OTP Button
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            context.read<AuthProvider>().clearError();
+                            context.push('/phone-auth');
+                          },
+                          icon: const Icon(Icons.phone_android_rounded, size: 20),
+                          label: const Text(
+                            'Login via SMS OTP',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: AppConstants.spaceLg),
 
                         // Register link

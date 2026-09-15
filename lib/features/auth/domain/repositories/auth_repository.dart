@@ -23,4 +23,11 @@ abstract class AuthRepository {
 
   /// Returns stored User if a valid token exists, otherwise null.
   Future<User?> getStoredUser();
+
+  /// Verify Firebase Phone ID token and login/register user.
+  Future<User> verifyFirebasePhone({
+    required String idToken,
+    String? phone,
+    String role = 'customer',
+  });
 }

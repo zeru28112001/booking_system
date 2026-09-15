@@ -55,6 +55,13 @@ import 'features/provider_portal/screens/provider_onboarding_screen.dart';
 import 'features/provider_portal/screens/provider_schedule_screen.dart';
 import 'features/provider_portal/screens/provider_shell_screen.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'core/services/fcm_service.dart';
+import 'features/auth/screens/phone_auth_screen.dart';
+import 'features/notification/data/services/notification_api_service.dart';
+import 'features/notification/providers/notification_provider.dart';
+import 'features/notification/screens/notification_screen.dart';
+
 import 'features/admin_portal/providers/admin_portal_provider.dart';
 import 'features/admin_portal/screens/admin_shell_screen.dart';
 
@@ -109,6 +116,8 @@ final _providerPortalRepositoryImpl = ProviderPortalRepositoryImpl(
   providerPortalApiService: _providerPortalApiService,
 );
 
+final _notificationApiService = NotificationApiService(apiClient: _apiClient);
+
 // ── Router & Transitions ──────────────────────────────────────────────────────
 
 CustomTransitionPage<T> _buildPageWithTransition<T>({
@@ -155,6 +164,17 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/register',
       builder: (ctx, s) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/phone-auth',
+      builder: (ctx, s) {
+        final role = s.uri.queryParameters['role'] ?? 'customer';
+        return PhoneAuthScreen(role: role);
+      },
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (ctx, s) => const NotificationScreen(),
     ),
     GoRoute(
       path: '/otp',
@@ -359,6 +379,8 @@ final GoRouter _router = GoRouter(
   ],
 );
 
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 Future<void> main() async {
@@ -366,6 +388,15 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
   final baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:5001/api/v1';
   SocketService().init(baseUrl);
+
+  try {
+    await Firebase.initializeApp();
+    FCMService().init(apiClient: _apiClient, messengerKey: scaffoldMessengerKey);
+    await FCMService().setupFCM();
+  } catch (e) {
+    debugPrint('⚠️ [Firebase] Native initialization skipped or fallback mode: $e');
+  }
+
   runApp(const BookingApp());
 }
 
@@ -418,6 +449,9 @@ class BookingApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AdminPortalProvider(apiClient: _apiClient),
         ),
+        ChangeNotifierProvider(
+          create: (_) => NotificationProvider(apiService: _notificationApiService),
+        ),
         Provider<HomeApiService>(
           create: (_) => _homeApiService,
         ),
@@ -426,6 +460,7 @@ class BookingApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp.router(
+        scaffoldMessengerKey: scaffoldMessengerKey,
         title: "Zeru' Booking",
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,

@@ -80,6 +80,27 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> verifyFirebasePhone({
+    required String idToken,
+    String? phone,
+    String role = 'customer',
+  }) async {
+    _setLoading(true);
+    try {
+      _currentUser = await _authRepository.verifyFirebasePhone(
+        idToken: idToken,
+        phone: phone,
+        role: role,
+      );
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+      _currentUser = null;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<void> logout() async {
     await _authRepository.logout();
     _currentUser = null;

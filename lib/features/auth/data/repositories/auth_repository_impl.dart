@@ -78,6 +78,22 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<User> verifyFirebasePhone({
+    required String idToken,
+    String? phone,
+    String role = 'customer',
+  }) async {
+    final model = await authApiService.verifyFirebasePhone(
+      idToken: idToken,
+      phone: phone,
+      role: role,
+    );
+    await _persistUser(model);
+    apiClient.setAuthToken(model.token);
+    return model;
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   Future<void> _persistUser(UserModel model) async {

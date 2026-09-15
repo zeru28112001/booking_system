@@ -44,4 +44,20 @@ class AuthApiService {
   Future<void> logout() async {
     await _apiClient.post('/auth/logout');
   }
+
+  /// POST /auth/verify-firebase-phone
+  Future<UserModel> verifyFirebasePhone({
+    required String idToken,
+    String? phone,
+    String role = 'customer',
+  }) async {
+    final responseData = await _apiClient.post('/auth/verify-firebase-phone', body: {
+      'idToken': idToken,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+      'role': role,
+    }) as Map<String, dynamic>;
+
+    final data = (responseData['data'] as Map<String, dynamic>?) ?? responseData;
+    return UserModel.fromJson(data);
+  }
 }
