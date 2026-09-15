@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/fcm_service.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
@@ -30,6 +31,9 @@ class AuthRepositoryImpl implements AuthRepository {
     final model = await authApiService.login(phone: phone, password: password);
     await _persistUser(model);
     apiClient.setAuthToken(model.token);
+    try {
+      await FCMService().setupFCM();
+    } catch (_) {}
     return model;
   }
 
@@ -48,11 +52,17 @@ class AuthRepositoryImpl implements AuthRepository {
     );
     await _persistUser(model);
     apiClient.setAuthToken(model.token);
+    try {
+      await FCMService().setupFCM();
+    } catch (_) {}
     return model;
   }
 
   @override
   Future<void> logout() async {
+    try {
+      await FCMService().unregisterTokenWithBackend();
+    } catch (_) {}
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_prefKeyUser);
     apiClient.clearAuthToken();
@@ -72,6 +82,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       final model = UserModel.fromJson(json);
       apiClient.setAuthToken(model.token);
+      try {
+        await FCMService().setupFCM();
+      } catch (_) {}
       return model;
     } catch (_) {
       return null;
@@ -91,6 +104,9 @@ class AuthRepositoryImpl implements AuthRepository {
     );
     await _persistUser(model);
     apiClient.setAuthToken(model.token);
+    try {
+      await FCMService().setupFCM();
+    } catch (_) {}
     return model;
   }
 
