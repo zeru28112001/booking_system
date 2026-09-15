@@ -445,6 +445,15 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                         secondary: const Icon(Icons.store_rounded, color: AppTheme.primary, size: 22),
                         value: p.isShop,
                         onChanged: (val) {
+                          if (!val && !p.isHomeService) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('At least one service mode (Storefront Shop or Home Service) must remain active!'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
                           final updated = ProviderProfile(
                             id: p.id,
                             shopName: p.shopName,
@@ -473,6 +482,15 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                         secondary: const Icon(Icons.home_repair_service_rounded, color: AppTheme.primary, size: 22),
                         value: p.isHomeService,
                         onChanged: (val) {
+                          if (!val && !p.isShop) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('At least one service mode (Storefront Shop or Home Service) must remain active!'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
                           final updated = ProviderProfile(
                             id: p.id,
                             shopName: p.shopName,
