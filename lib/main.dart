@@ -70,7 +70,7 @@ import 'features/admin_portal/screens/admin_shell_screen.dart';
 // ApiClient → *ApiService → *RepositoryImpl → *Provider
 
 final _apiClient = ApiClient(
-  baseUrl: dotenv.env['API_BASE_URL'] ?? 'http://localhost:5001/api/v1',
+  baseUrl: dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:5001/api/v1',
   apiKey: dotenv.env['API_KEY'] ?? 'bs_live_4469300911156df9e659b03ecaa8594d1f5f9411f5be6fadb1e861730276a705',
 );
 
