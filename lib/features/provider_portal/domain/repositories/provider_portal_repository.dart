@@ -10,6 +10,7 @@ import '../entities/payment_method_config.dart';
 abstract class ProviderPortalRepository {
   Future<ProviderProfile> getProfile();
   Future<ProviderProfile> updateProfile(ProviderProfile profile);
+  Future<void> submitProfileChangeRequest(ProviderProfile profile);
   Future<ProviderProfile> toggleAvailability(bool isAvailable);
 
   Future<List<Service>> getServices();

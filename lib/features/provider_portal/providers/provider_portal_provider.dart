@@ -323,6 +323,43 @@ class ProviderPortalProvider extends ChangeNotifier {
     }
   }
 
+  // Profile Change Request (Requires Admin Approval)
+  Future<bool> requestProfileUpdate(ProviderProfile requestedProfile) async {
+    _isSaving = true;
+    notifyListeners();
+    try {
+      await providerPortalRepository.submitProfileChangeRequest(requestedProfile);
+      if (_profile != null) {
+        _profile = ProviderProfile(
+          id: _profile!.id,
+          shopName: _profile!.shopName,
+          categoryName: _profile!.categoryName,
+          description: _profile!.description,
+          address: _profile!.address,
+          phone: _profile!.phone,
+          isAvailable: _profile!.isAvailable,
+          isShop: _profile!.isShop,
+          isHomeService: _profile!.isHomeService,
+          verificationStatus: _profile!.verificationStatus,
+          rating: _profile!.rating,
+          reviewCount: _profile!.reviewCount,
+          imageUrl: _profile!.imageUrl,
+          rejectionReason: _profile!.rejectionReason,
+          latitude: _profile!.latitude,
+          longitude: _profile!.longitude,
+          hasPendingApproval: true,
+        );
+      }
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
+  }
+
   // Payments CRUD methods
   Future<void> fetchPayments({String? status}) async {
     try {

@@ -9,6 +9,16 @@ class HomeApiService {
 
   final ApiClient _apiClient;
 
+  /// GET /settings/public — no auth required, checks isMaintenanceMode
+  Future<Map<String, dynamic>> getPublicSettings() async {
+    try {
+      final data = await _apiClient.get('/settings/public');
+      return data is Map<String, dynamic> ? data : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
   /// GET /categories
   Future<List<CategoryModel>> getCategories() async {
     final data = await _apiClient.get('/categories');

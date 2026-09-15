@@ -33,13 +33,41 @@ class ProviderPortalRepositoryImpl implements ProviderPortalRepository {
       address: profile.address,
       phone: profile.phone,
       isAvailable: profile.isAvailable,
+      isShop: profile.isShop,
+      isHomeService: profile.isHomeService,
       verificationStatus: profile.verificationStatus,
       rating: profile.rating,
       reviewCount: profile.reviewCount,
       imageUrl: profile.imageUrl,
       rejectionReason: profile.rejectionReason,
+      latitude: profile.latitude,
+      longitude: profile.longitude,
     );
     return providerPortalApiService.updateProfile(model);
+  }
+
+  @override
+  Future<void> submitProfileChangeRequest(ProviderProfile profile) async {
+    final model = ProviderProfileModel(
+      id: profile.id,
+      shopName: profile.shopName,
+      categoryName: profile.categoryName,
+      description: profile.description,
+      address: profile.address,
+      phone: profile.phone,
+      isAvailable: profile.isAvailable,
+      isShop: profile.isShop,
+      isHomeService: profile.isHomeService,
+      verificationStatus: profile.verificationStatus,
+      rating: profile.rating,
+      reviewCount: profile.reviewCount,
+      imageUrl: profile.imageUrl,
+      rejectionReason: profile.rejectionReason,
+      latitude: profile.latitude,
+      longitude: profile.longitude,
+      hasPendingApproval: profile.hasPendingApproval,
+    );
+    return providerPortalApiService.submitProfileChangeRequest(model);
   }
 
   @override

@@ -22,6 +22,22 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
   late TextEditingController _phoneController;
   late Set<String> _selectedSpecialties;
   late bool _isActive;
+  late Set<String> _offDays;
+  TimeOfDay? _shiftStartTime;
+  TimeOfDay? _shiftEndTime;
+  late bool _useShopHours;
+
+  TimeOfDay? _parseTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) return null;
+    final parts = timeStr.split(':');
+    if (parts.length != 2) return null;
+    return TimeOfDay(hour: int.tryParse(parts[0]) ?? 0, minute: int.tryParse(parts[1]) ?? 0);
+  }
+
+  String? _formatTime(TimeOfDay? time) {
+    if (time == null) return null;
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
 
   @override
   void initState() {
@@ -31,6 +47,10 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
     _phoneController = TextEditingController(text: stf?.phone ?? '');
     _selectedSpecialties = stf?.specialties.toSet() ?? {};
     _isActive = stf?.isActive ?? true;
+    _offDays = stf?.offDays.toSet() ?? {};
+    _shiftStartTime = _parseTime(stf?.shiftStartTime);
+    _shiftEndTime = _parseTime(stf?.shiftEndTime);
+    _useShopHours = _shiftStartTime == null && _shiftEndTime == null;
   }
 
   @override
@@ -52,6 +72,9 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
       specialties: _selectedSpecialties.toList(),
       isActive: _isActive,
       avatarUrl: widget.staff?.avatarUrl ?? '',
+      offDays: _offDays.toList(),
+      shiftStartTime: _useShopHours ? null : _formatTime(_shiftStartTime),
+      shiftEndTime: _useShopHours ? null : _formatTime(_shiftEndTime),
     );
 
     final success = await provider.saveStaff(staffMember);
@@ -211,16 +234,188 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
               ],
 
               const SizedBox(height: AppConstants.spaceLg),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Active Status', style: TextStyle(fontWeight: FontWeight.w600)),
-                  Switch(
-                    value: _isActive,
-                    activeThumbColor: AppTheme.primary,
-                    onChanged: (val) => setState(() => _isActive = val),
-                  ),
-                ],
+              Text(
+                'Weekly Off Days',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Select days this staff member does not work:',
+                style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: AppConstants.spaceSm),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) {
+                  final isOff = _offDays.contains(day);
+                  return FilterChip(
+                    label: Text(day, style: const TextStyle(fontSize: 12)),
+                    selected: isOff,
+                    onSelected: (selected) {
+                      setState(() {
+                        if (selected) {
+                          _offDays.add(day);
+                        } else {
+                          _offDays.remove(day);
+                        }
+                      });
+                    },
+                    selectedColor: AppTheme.error.withAlpha(30),
+                    checkmarkColor: AppTheme.error,
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: AppConstants.spaceLg),
+              Text(
+                'Daily Working Hours (Shift)',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Set specific working hours for this staff member.',
+                style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: AppConstants.spaceSm),
+              Material(
+                color: AppTheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                  side: const BorderSide(color: AppTheme.divider),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                padding: const EdgeInsets.all(AppConstants.spaceMd),
+                child: Column(
+                  children: [
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Inherit Shop Hours', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                      subtitle: const Text('Staff works exactly when the shop is open', style: TextStyle(fontSize: 12)),
+                      value: _useShopHours,
+                      activeColor: AppTheme.primary,
+                      onChanged: (val) {
+                        setState(() {
+                          _useShopHours = val ?? true;
+                          if (_useShopHours) {
+                            _shiftStartTime = null;
+                            _shiftEndTime = null;
+                          } else {
+                            _shiftStartTime = const TimeOfDay(hour: 9, minute: 0);
+                            _shiftEndTime = const TimeOfDay(hour: 17, minute: 0);
+                          }
+                        });
+                      },
+                    ),
+                    if (!_useShopHours) ...[
+                      const Divider(),
+                      const SizedBox(height: AppConstants.spaceSm),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: _shiftStartTime ?? const TimeOfDay(hour: 9, minute: 0),
+                                );
+                                if (time != null) setState(() => _shiftStartTime = time);
+                              },
+                              child: InputDecorator(
+                                decoration: const InputDecoration(
+                                  labelText: 'Start Time',
+                                  prefixIcon: Icon(Icons.access_time),
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                                child: Text(_shiftStartTime?.format(context) ?? '--:--'),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppConstants.spaceMd),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: _shiftEndTime ?? const TimeOfDay(hour: 17, minute: 0),
+                                );
+                                if (time != null) setState(() => _shiftEndTime = time);
+                              },
+                              child: InputDecorator(
+                                decoration: const InputDecoration(
+                                  labelText: 'End Time',
+                                  prefixIcon: Icon(Icons.access_time),
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                                child: Text(_shiftEndTime?.format(context) ?? '--:--'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+
+              const SizedBox(height: AppConstants.spaceLg),
+              Container(
+                padding: const EdgeInsets.all(AppConstants.spaceMd),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                  border: Border.all(color: AppTheme.divider),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                _isActive ? 'Active Status' : 'Day Off Status',
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: _isActive ? AppTheme.success.withAlpha(30) : Colors.orange.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  _isActive ? 'Active' : 'Day Off or Break',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: _isActive ? AppTheme.success : Colors.orange.shade800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _isActive ? 'Staff is available for appointments' : 'Staff is taking a day off (မအားပါ/ခွင့်ရက်)',
+                            style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _isActive,
+                      activeThumbColor: AppTheme.primary,
+                      onChanged: (val) => setState(() => _isActive = val),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: AppConstants.spaceLg),
               Consumer<ProviderPortalProvider>(

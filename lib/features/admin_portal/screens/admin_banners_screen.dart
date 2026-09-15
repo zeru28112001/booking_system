@@ -6,7 +6,8 @@ import '../data/models/promo_banner_model.dart';
 import '../providers/admin_portal_provider.dart';
 
 class AdminBannersScreen extends StatefulWidget {
-  const AdminBannersScreen({super.key});
+  final bool isEmbedded;
+  const AdminBannersScreen({super.key, this.isEmbedded = true});
 
   @override
   State<AdminBannersScreen> createState() => _AdminBannersScreenState();
@@ -263,74 +264,68 @@ class _AdminBannersScreenState extends State<AdminBannersScreen> {
     final adminProvider = context.watch<AdminPortalProvider>();
     final banners = adminProvider.banners;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Promo Banners Management'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => adminProvider.fetchBanners(),
-            tooltip: 'Refresh Banners',
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showBannerDialog(),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add Banner'),
-        backgroundColor: AppTheme.primary,
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => adminProvider.fetchBanners(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(AppConstants.spaceMd),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Summary Card
-              Container(
-                padding: const EdgeInsets.all(AppConstants.spaceMd),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppTheme.primary, AppTheme.accent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+    final body = SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(AppConstants.spaceMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+            // Header Summary Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppConstants.spaceMd),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primary, AppTheme.accent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
+                borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(40),
+                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                    ),
+                    child: const Icon(Icons.view_carousel_rounded, size: 28, color: Colors.white),
+                  ),
+                  const SizedBox(width: AppConstants.spaceMd),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Home Screen Promo Banners',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${banners.where((b) => b.isActive).length} Active · ${banners.length} Total Banners',
+                          style: TextStyle(color: Colors.white.withAlpha(220), fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Add button — compact icon button, no text wrapping risk
+                  GestureDetector(
+                    onTap: () => _showBannerDialog(),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(40),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                       ),
-                      child: const Icon(Icons.view_carousel_rounded, size: 28, color: Colors.white),
+                      child: const Icon(Icons.add_rounded, color: AppTheme.primary, size: 22),
                     ),
-                    const SizedBox(width: AppConstants.spaceMd),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Home Screen Promo Banners',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${banners.where((b) => b.isActive).length} Active · ${banners.length} Total Banners',
-                            style: TextStyle(color: Colors.white.withAlpha(220), fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppConstants.spaceLg),
+            ),
+            const SizedBox(height: AppConstants.spaceLg),
 
               Text('All Banners (${banners.length})', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: AppConstants.spaceSm),
@@ -504,8 +499,24 @@ class _AdminBannersScreenState extends State<AdminBannersScreen> {
                 ),
             ],
           ),
-        ),
+        );
+
+    if (widget.isEmbedded) {
+      return body;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Promo Banners Management'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: () => adminProvider.fetchBanners(),
+            tooltip: 'Refresh Banners',
+          ),
+        ],
       ),
+      body: body,
     );
   }
 }

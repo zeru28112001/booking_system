@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import 'package:booking_system/features/booking/domain/entities/booking.dart';
 import '../providers/provider_portal_provider.dart';
+import '../widgets/provider_booking_details_sheet.dart';
 
 class ProviderBookingsScreen extends StatefulWidget {
   const ProviderBookingsScreen({super.key});
@@ -105,13 +106,19 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
         final booking = list[index];
         final status = booking.status;
 
-        return Container(
-          padding: const EdgeInsets.all(AppConstants.spaceMd),
-          decoration: BoxDecoration(
-            color: AppTheme.surface,
+        return Card(
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-            border: Border.all(color: AppTheme.divider),
+            side: const BorderSide(color: AppTheme.divider),
           ),
+          color: AppTheme.surface,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => ProviderBookingDetailsSheet.show(context, booking),
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.spaceMd),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -140,53 +147,86 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
+                  const Icon(Icons.person_outline_rounded, size: 14, color: AppTheme.textSecondary),
                   const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(booking.address, style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ),
+                  Text(booking.customerName ?? 'Customer', style: theme.textTheme.bodySmall),
+                  if (booking.customerPhone != null && booking.customerPhone!.isNotEmpty) ...[
+                    const SizedBox(width: 12),
+                    const Icon(Icons.phone_outlined, size: 14, color: AppTheme.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(booking.customerPhone!, style: theme.textTheme.bodySmall),
+                  ],
                 ],
               ),
+              if (booking.bookingType == 'home_service' && booking.latitude != null && booking.longitude != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(booking.address, style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: AppConstants.spaceMd),
 
               // FR-22: Stepper Status Actions
               if (status == 'pending') ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => provider.updateBookingStatus(booking.id, 'cancelled'),
-                        child: const Text('Reject', style: TextStyle(color: AppTheme.error)),
+                GestureDetector(
+                  onTap: () {}, // Isolate tap from parent InkWell
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => provider.updateBookingStatus(booking.id, 'cancelled'),
+                          child: const Text('Reject', style: TextStyle(color: AppTheme.error)),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppConstants.spaceMd),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
-                        onPressed: () => provider.updateBookingStatus(booking.id, 'accepted'),
-                        child: const Text('Accept'),
+                      const SizedBox(width: AppConstants.spaceMd),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
+                          onPressed: () => provider.updateBookingStatus(booking.id, 'accepted'),
+                          child: const Text('Accept'),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ] else if (status == 'accepted') ...[
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                  label: const Text('Mark as In Progress'),
-                  onPressed: () => provider.updateBookingStatus(booking.id, 'in_progress'),
+                GestureDetector(
+                  onTap: () {},
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                      label: const Text('Mark as In Progress'),
+                      onPressed: () => provider.updateBookingStatus(booking.id, 'in_progress'),
+                    ),
+                  ),
                 ),
               ] else if (status == 'in_progress') ...[
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                  label: const Text('Mark as Completed'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
-                  onPressed: () => provider.updateBookingStatus(booking.id, 'completed'),
+                GestureDetector(
+                  onTap: () {},
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+                      label: const Text('Mark as Completed'),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
+                      onPressed: () => provider.updateBookingStatus(booking.id, 'completed'),
+                    ),
+                  ),
                 ),
               ],
-            ],
+              ],
+            ),
           ),
-        );
-      },
+        ),
+      );
+    },
     ),
   );
 }

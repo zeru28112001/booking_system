@@ -141,7 +141,7 @@ class _ServiceFormSheetState extends State<ServiceFormSheet> {
                 builder: (context, provider, _) {
                   final groupNames = provider.serviceGroups.map((g) => g.name).toList();
                   if (groupNames.isEmpty) {
-                    groupNames.addAll(['Hair', 'Nails', 'Spa', 'Beard', 'General']);
+                    groupNames.add('General');
                   }
 
                   final currentText = _groupController.text.trim();

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'admin_dashboard_screen.dart';
+import 'admin_providers_screen.dart';
+import 'admin_bookings_screen.dart';
+import 'admin_categories_screen.dart';
 import 'admin_banners_screen.dart';
-import 'admin_profile_screen.dart';
+import 'admin_settings_screen.dart';
 
 class AdminShellScreen extends StatefulWidget {
   const AdminShellScreen({super.key});
@@ -16,16 +19,19 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
 
   final List<Widget> _screens = const [
     AdminDashboardScreen(),
-    AdminBannersScreen(),
-    AdminProfileScreen(),
+    AdminProvidersScreen(),
+    AdminBookingsScreen(),
+    AdminCategoriesScreen(),
+    AdminBannersScreen(isEmbedded: false),
+    AdminSettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: KeyedSubtree(
+        key: ValueKey(_currentIndex),
+        child: _screens[_currentIndex],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -47,19 +53,34 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           },
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.admin_panel_settings_outlined),
-              selectedIcon: Icon(Icons.admin_panel_settings_rounded),
-              label: 'Admin Portal',
+              icon: Icon(Icons.dashboard_outlined),
+              selectedIcon: Icon(Icons.dashboard_rounded),
+              label: 'Dashboard',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.verified_user_outlined),
+              selectedIcon: Icon(Icons.verified_user_rounded),
+              label: 'Providers',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month_rounded),
+              label: 'Bookings',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.category_outlined),
+              selectedIcon: Icon(Icons.category_rounded),
+              label: 'Categories',
             ),
             NavigationDestination(
               icon: Icon(Icons.view_carousel_outlined),
               selectedIcon: Icon(Icons.view_carousel_rounded),
-              label: 'Banners',
+              label: 'Promo',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
+              icon: Icon(Icons.settings_outlined),
+              selectedIcon: Icon(Icons.settings_rounded),
+              label: 'Settings',
             ),
           ],
         ),

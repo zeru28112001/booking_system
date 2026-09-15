@@ -165,7 +165,6 @@ class AdminProfileScreen extends StatelessWidget {
             const SizedBox(height: AppConstants.spaceSm),
             Material(
               color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                 side: const BorderSide(color: AppTheme.divider),
@@ -210,7 +209,6 @@ class AdminProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppConstants.spaceSm),
       child: Material(
         color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
           side: const BorderSide(color: AppTheme.divider),

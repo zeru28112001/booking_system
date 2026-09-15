@@ -1,7 +1,11 @@
 import 'package:flutter/foundation.dart';
 import '../../../../core/network/api_client.dart';
+import '../../booking/data/models/booking_model.dart';
+import '../../home/data/models/category_model.dart';
 import '../../provider_portal/data/models/provider_profile_model.dart';
 import '../data/models/promo_banner_model.dart';
+import '../data/models/provider_profile_request_model.dart';
+import '../data/models/system_settings_model.dart';
 
 class AdminPortalProvider extends ChangeNotifier {
   AdminPortalProvider({this.apiClient});
@@ -12,14 +16,29 @@ class AdminPortalProvider extends ChangeNotifier {
   String? _error;
 
   List<ProviderProfileModel> _providers = [];
+  List<ProviderProfileRequestModel> _pendingProfileRequests = [];
+  List<BookingModel> _allBookings = [];
+  List<CategoryModel> _categories = [];
   List<PromoBannerModel> _banners = [];
+  SystemSettingsModel _systemSettings = const SystemSettingsModel(
+    supportPhone: '09 123 456 780',
+    supportEmail: 'support@bookingsystem.mm',
+    isMaintenanceMode: false,
+  );
+
   int _totalCustomersCount = 0;
   int _totalBookingsCount = 0;
+  double _totalRevenue = 0;
+  int _pendingProfileRequestsCount = 0;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
   List<ProviderProfileModel> get providers => _providers;
+  List<ProviderProfileRequestModel> get pendingProfileRequests => _pendingProfileRequests;
+  List<BookingModel> get allBookings => _allBookings;
+  List<CategoryModel> get categories => _categories;
   List<PromoBannerModel> get banners => _banners;
+  SystemSettingsModel get systemSettings => _systemSettings;
 
   List<ProviderProfileModel> get pendingVerifications =>
       _providers.where((p) => p.verificationStatus == 'pending').toList();
@@ -31,12 +50,17 @@ class AdminPortalProvider extends ChangeNotifier {
 
   int get totalCustomersCount => _totalCustomersCount;
   int get totalBookingsCount => _totalBookingsCount;
+  double get totalRevenue => _totalRevenue;
+  int get pendingProfileRequestsCount => _pendingProfileRequestsCount;
 
   Map<String, dynamic> get metrics => {
         'total_users': totalCustomersCount,
+        'total_customers': totalCustomersCount,
         'total_providers': _providers.length,
         'pending_verifications': pendingVerifications.length,
+        'pending_profile_requests': pendingProfileRequestsCount,
         'total_bookings': totalBookingsCount,
+        'total_revenue': totalRevenue,
       };
 
   Future<void> fetchAdminDashboardData() async {
@@ -56,6 +80,8 @@ class AdminPortalProvider extends ChangeNotifier {
         final m = metricsData['data'] as Map<String, dynamic>;
         _totalCustomersCount = (m['total_customers'] as num?)?.toInt() ?? 0;
         _totalBookingsCount = (m['total_bookings'] as num?)?.toInt() ?? 0;
+        _totalRevenue = (m['total_revenue'] as num?)?.toDouble() ?? 0.0;
+        _pendingProfileRequestsCount = (m['pending_profile_requests'] as num?)?.toInt() ?? 0;
       }
 
       final providersData = await apiClient!.get('/admin/providers');
@@ -67,7 +93,13 @@ class AdminPortalProvider extends ChangeNotifier {
           .map((item) => ProviderProfileModel.fromJson(item as Map<String, dynamic>))
           .toList();
 
-      await fetchBanners();
+      await Future.wait([
+        fetchPendingProfileRequests(),
+        fetchAllBookings(),
+        fetchCategories(),
+        fetchBanners(),
+        fetchSystemSettings(),
+      ]);
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -77,6 +109,162 @@ class AdminPortalProvider extends ChangeNotifier {
   }
 
   Future<void> fetchAdminData() => fetchAdminDashboardData();
+
+  // ── Pending Profile Requests ───────────────────────────────────────────────
+
+  Future<void> fetchPendingProfileRequests() async {
+    if (apiClient == null) return;
+    try {
+      final res = await apiClient!.get('/admin/profile-requests');
+      final list = res is Map<String, dynamic>
+          ? (res['data'] as List<dynamic>? ?? const [])
+          : (res as List<dynamic>? ?? const []);
+
+      _pendingProfileRequests = list
+          .map((item) => ProviderProfileRequestModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+      _pendingProfileRequestsCount = _pendingProfileRequests.length;
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<bool> approveProfileRequest(String requestId) async {
+    try {
+      if (apiClient != null) {
+        await apiClient!.patch('/admin/profile-requests/$requestId/approve');
+      }
+      _pendingProfileRequests.removeWhere((r) => r.id == requestId);
+      _pendingProfileRequestsCount = _pendingProfileRequests.length;
+      await fetchAdminDashboardData();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> rejectProfileRequest(String requestId, [String? reason]) async {
+    try {
+      if (apiClient != null) {
+        await apiClient!.patch(
+          '/admin/profile-requests/$requestId/reject',
+          body: {'reason': reason ?? 'Rejected by admin'},
+        );
+      }
+      _pendingProfileRequests.removeWhere((r) => r.id == requestId);
+      _pendingProfileRequestsCount = _pendingProfileRequests.length;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ── Global Bookings Explorer ──────────────────────────────────────────────
+
+  Future<void> fetchAllBookings([String? status]) async {
+    if (apiClient == null) return;
+    try {
+      var path = '/admin/bookings';
+      if (status != null && status.isNotEmpty && status != 'all') {
+        path += '?status=$status';
+      }
+      final res = await apiClient!.get(path);
+      final list = res is Map<String, dynamic>
+          ? (res['data'] as List<dynamic>? ?? const [])
+          : (res as List<dynamic>? ?? const []);
+
+      _allBookings = list
+          .map((item) => BookingModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  // ── Categories CRUD ────────────────────────────────────────────────────────
+
+  Future<void> fetchCategories() async {
+    if (apiClient == null) return;
+    try {
+      final res = await apiClient!.get('/admin/categories');
+      final list = res is Map<String, dynamic>
+          ? (res['data'] as List<dynamic>? ?? const [])
+          : (res as List<dynamic>? ?? const []);
+
+      _categories = list
+          .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+      notifyListeners();
+    } catch (_) {
+      try {
+        final res = await apiClient!.get('/categories');
+        final list = res is Map<String, dynamic>
+            ? (res['data'] as List<dynamic>? ?? const [])
+            : (res as List<dynamic>? ?? const []);
+
+        _categories = list
+            .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+        notifyListeners();
+      } catch (_) {}
+    }
+  }
+
+  Future<bool> createCategory({required String name, required String iconName, String? description}) async {
+    try {
+      if (apiClient != null) {
+        await apiClient!.post('/admin/categories', body: {
+          'name': name,
+          'icon_name': iconName,
+          if (description != null) 'description': description,
+        });
+      }
+      await fetchCategories();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateCategory(String categoryId, {String? name, String? iconName, String? description}) async {
+    try {
+      if (apiClient != null) {
+        await apiClient!.put('/admin/categories/$categoryId', body: {
+          if (name != null) 'name': name,
+          if (iconName != null) 'icon_name': iconName,
+          if (description != null) 'description': description,
+        });
+      }
+      await fetchCategories();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteCategory(String categoryId) async {
+    try {
+      if (apiClient != null) {
+        await apiClient!.delete('/admin/categories/$categoryId');
+      }
+      _categories.removeWhere((c) => c.id == categoryId);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ── Promo Banners CRUD ─────────────────────────────────────────────────────
 
   Future<void> fetchBanners() async {
     if (apiClient == null) return;
@@ -91,7 +279,6 @@ class AdminPortalProvider extends ChangeNotifier {
           .toList();
       notifyListeners();
     } catch (e) {
-      // Fallback to public endpoint if admin endpoint fails
       try {
         final res = await apiClient!.get('/banners');
         final list = res is Map<String, dynamic>
@@ -154,7 +341,37 @@ class AdminPortalProvider extends ChangeNotifier {
     }
   }
 
-  // FR-16: Admin Verification Approval
+  // ── System Settings ───────────────────────────────────────────────────────
+
+  Future<void> fetchSystemSettings() async {
+    if (apiClient == null) return;
+    try {
+      final res = await apiClient!.get('/admin/settings');
+      final data = res is Map<String, dynamic> ? (res['data'] ?? res) : res;
+      if (data is Map<String, dynamic>) {
+        _systemSettings = SystemSettingsModel.fromJson(data);
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
+
+  Future<bool> updateSystemSettings(SystemSettingsModel settings) async {
+    try {
+      if (apiClient != null) {
+        await apiClient!.put('/admin/settings', body: settings.toJson());
+      }
+      _systemSettings = settings;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ── Provider Actions ──────────────────────────────────────────────────────
+
   Future<bool> approveProvider(String providerId) async {
     try {
       if (apiClient != null) {
@@ -173,7 +390,6 @@ class AdminPortalProvider extends ChangeNotifier {
     }
   }
 
-  // FR-16: Admin Verification Rejection
   Future<bool> rejectProvider(String providerId, [String? reason]) async {
     try {
       if (apiClient != null) {
@@ -198,4 +414,3 @@ class AdminPortalProvider extends ChangeNotifier {
     }
   }
 }
-

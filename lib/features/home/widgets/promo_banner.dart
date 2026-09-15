@@ -11,26 +11,33 @@ class PromoBanner extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.icon = Icons.local_offer_rounded,
+    this.imageUrl,
     this.onTap,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
+  final String? imageUrl;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppConstants.spaceMd),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppTheme.primary, AppTheme.accent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: hasImage
+              ? null
+              : const LinearGradient(
+                  colors: [AppTheme.primary, AppTheme.accent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+          color: hasImage ? Colors.black : null,
           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
           boxShadow: [
             BoxShadow(
@@ -40,36 +47,78 @@ class PromoBanner extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
+        child: Stack(
+          alignment: Alignment.centerLeft,
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppTheme.onPrimary.withAlpha(40),
-                borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-              ),
-              child: Icon(icon, size: 22, color: AppTheme.onPrimary),
-            ),
-            const SizedBox(width: AppConstants.spaceMd),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppTheme.onPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+            // Background image
+            if (hasImage)
+              Positioned.fill(
+                child: Image.network(
+                  imageUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppTheme.primary, AppTheme.accent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: AppConstants.spaceXs),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.onPrimary.withAlpha(220),
+                ),
+              ),
+            // Dark scrim over image so text is readable
+            if (hasImage)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.black.withAlpha(160),
+                        Colors.black.withAlpha(60),
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                ),
+              ),
+            // Content row
+            Padding(
+              padding: const EdgeInsets.all(AppConstants.spaceMd),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppTheme.onPrimary.withAlpha(40),
+                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                    ),
+                    child: Icon(icon, size: 22, color: AppTheme.onPrimary),
+                  ),
+                  const SizedBox(width: AppConstants.spaceMd),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: AppTheme.onPrimary,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
+                        const SizedBox(height: AppConstants.spaceXs),
+                        Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.onPrimary.withAlpha(220),
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -238,6 +287,7 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
                       title: banner.title,
                       subtitle: banner.subtitle,
                       icon: _resolveIcon(banner.iconName),
+                      imageUrl: banner.imageUrl,
                       onTap: () => widget.onBannerTap?.call(banner),
                     ),
                   ),

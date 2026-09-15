@@ -17,11 +17,18 @@ class ProviderListProvider extends ChangeNotifier {
   // ── State ─────────────────────────────────────────────────────────────────
 
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   String? _error;
   List<ServiceProvider> _providers = [];
   ProviderSort _sort = ProviderSort.recommended;
 
+  int _currentPage = 1;
+  bool _hasMore = true;
+  static const int _limit = 10;
+
   bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
   String? get error => _error;
   List<ServiceProvider> get providers => _providers;
   ProviderSort get sortOption => _sort;
@@ -90,20 +97,66 @@ class ProviderListProvider extends ChangeNotifier {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  Future<void> fetchProviders(String categoryId) async {
-    _setLoading(true);
+  Future<void> fetchProviders({
+    String? categoryId,
+    String? query,
+    double? lat,
+    double? lng,
+    bool isRefresh = true,
+  }) async {
+    if (isRefresh) {
+      _setLoading(true);
+      _currentPage = 1;
+      _hasMore = true;
+    } else {
+      if (!_hasMore || _isLoadingMore) return;
+      _isLoadingMore = true;
+      notifyListeners();
+      _currentPage++;
+    }
+
     try {
-      _providers = List<ServiceProvider>.from(
-        await _providerRepository.getProvidersByCategory(categoryId),
-      );
-      _sort = ProviderSort.recommended;
+      List<ServiceProvider> newProviders = [];
+      if (categoryId != null && categoryId.isNotEmpty) {
+        newProviders = await _providerRepository.getProvidersByCategory(
+          categoryId,
+          lat: lat,
+          lng: lng,
+          page: _currentPage,
+          limit: _limit,
+        );
+      } else {
+        newProviders = await _providerRepository.searchProviders(
+          query: query,
+          lat: lat,
+          lng: lng,
+          page: _currentPage,
+          limit: _limit,
+        );
+      }
+
+      if (isRefresh) {
+        _providers = newProviders;
+        _sort = ProviderSort.recommended;
+      } else {
+        _providers.addAll(newProviders);
+      }
+
+      _hasMore = newProviders.length == _limit;
       _error = null;
-      _initSocket();
+      if (isRefresh) {
+        _initSocket();
+      }
     } catch (e) {
       _error = e.toString();
-      _providers = [];
+      if (isRefresh) _providers = [];
     } finally {
-      _setLoading(false);
+      if (isRefresh) {
+        _setLoading(false);
+      } else {
+        _isLoadingMore = false;
+        notifyListeners();
+      }
     }
   }
 

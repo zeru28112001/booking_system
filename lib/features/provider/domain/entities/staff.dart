@@ -9,6 +9,9 @@ class Staff {
     required this.isAvailableToday,
     this.avatarUrl,
     this.specialties = const [],
+    this.offDays = const [],
+    this.shiftStartTime,
+    this.shiftEndTime,
   });
 
   final String id;
@@ -18,6 +21,9 @@ class Staff {
   final bool isAvailableToday;
   final String? avatarUrl;
   final List<String> specialties;
+  final List<String> offDays;
+  final String? shiftStartTime;
+  final String? shiftEndTime;
 
   @override
   String toString() => 'Staff(id: $id, name: $name, role: $role)';

@@ -16,14 +16,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<UserProfile> updateProfile({
-    required String name,
-    required String email,
-    required String address,
+    String? name,
+    String? email,
+    String? address,
+    List<SavedLocation>? savedLocations,
   }) async {
     return profileApiService.updateProfile(
       name: name,
       email: email,
       address: address,
+      savedLocations: savedLocations,
     );
   }
 

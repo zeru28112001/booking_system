@@ -84,17 +84,21 @@ class ProviderStaffScreen extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: member.isActive ? AppTheme.success.withAlpha(30) : AppTheme.error.withAlpha(30),
-                                  borderRadius: BorderRadius.circular(4),
+                                  color: member.isActive ? AppTheme.success.withAlpha(30) : Colors.orange.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: member.isActive ? AppTheme.success.withAlpha(80) : Colors.orange.withAlpha(80),
+                                    width: 0.8,
+                                  ),
                                 ),
                                 child: Text(
-                                  member.isActive ? 'Active' : 'Inactive',
+                                  member.isActive ? 'Active ' : 'Day Off or Break',
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: member.isActive ? AppTheme.success : AppTheme.error,
+                                    color: member.isActive ? AppTheme.success : Colors.orange.shade800,
                                   ),
                                 ),
                               ),

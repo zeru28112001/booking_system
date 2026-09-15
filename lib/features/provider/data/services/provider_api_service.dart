@@ -8,14 +8,51 @@ class ProviderApiService {
 
   final ApiClient _apiClient;
 
-  /// GET /categories/{categoryId}/providers
+  /// GET /providers?categoryId={categoryId}&lat={lat}&lng={lng}
   Future<List<ServiceProviderModel>> getProvidersByCategory(
-    String categoryId,
-  ) async {
-    final data = await _apiClient.get('/categories/$categoryId/providers');
+    String categoryId, {
+    double? lat,
+    double? lng,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    String url = '/providers?categoryId=$categoryId&page=$page&limit=$limit';
+    if (lat != null && lng != null) {
+      url += '&lat=$lat&lng=$lng';
+    }
+    final data = await _apiClient.get(url);
 
     // ApiClient normalises an empty body to {}, so unwrap `{ data: [...] }`
     // and tolerate a bare JSON array.
+    final List<dynamic> list = data is Map<String, dynamic>
+        ? (data['data'] as List<dynamic>? ?? const [])
+        : (data as List<dynamic>? ?? const []);
+
+    return list
+        .map((item) => ServiceProviderModel.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// GET /providers?q={query}&lat={lat}&lng={lng}
+  Future<List<ServiceProviderModel>> searchProviders({
+    String? query,
+    double? lat,
+    double? lng,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    String url = '/providers?';
+    final params = <String>['page=$page', 'limit=$limit'];
+    if (query != null && query.isNotEmpty) {
+      params.add('q=${Uri.encodeComponent(query)}');
+    }
+    if (lat != null && lng != null) {
+      params.add('lat=$lat');
+      params.add('lng=$lng');
+    }
+    url += params.join('&');
+    final data = await _apiClient.get(url);
+
     final List<dynamic> list = data is Map<String, dynamic>
         ? (data['data'] as List<dynamic>? ?? const [])
         : (data as List<dynamic>? ?? const []);

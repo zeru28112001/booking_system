@@ -9,10 +9,12 @@ import '../../../core/widgets/skeletons/category_grid_skeleton.dart';
 import '../../../core/widgets/animations/staggered_entrance.dart';
 import '../../../core/widgets/animations/app_scale_button.dart';
 import '../domain/entities/category.dart';
-import '../providers/home_provider.dart';
+import '../widgets/promo_banner.dart';
 import '../widgets/category_tile.dart';
 import '../widgets/home_search_bar.dart';
-import '../widgets/promo_banner.dart';
+import '../widgets/saved_locations_bottom_sheet.dart';
+import '../../../core/providers/location_provider.dart';
+import '../providers/home_provider.dart';
 
 /// Phase 2 — Home & category discovery.
 /// UI only: all data arrives through [HomeProvider].
@@ -171,8 +173,23 @@ class _LocationTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    final currentLocation = context.watch<LocationProvider>().currentLocationName ?? AppConstants.defaultLocation;
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(AppConstants.radiusLg)),
+          ),
+          builder: (_) => const SavedLocationsBottomSheet(),
+        );
+      },
+      borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(
           Icons.location_on_outlined,
@@ -190,7 +207,7 @@ class _LocationTitle extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               Text(
-                AppConstants.defaultLocation,
+                currentLocation,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -205,7 +222,9 @@ class _LocationTitle extends StatelessWidget {
           size: 18,
           color: AppTheme.textSecondary,
         ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 }

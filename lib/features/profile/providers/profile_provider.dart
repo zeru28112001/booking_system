@@ -32,9 +32,10 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   Future<bool> updateProfile({
-    required String name,
-    required String email,
-    required String address,
+    String? name,
+    String? email,
+    String? address,
+    List<SavedLocation>? savedLocations,
   }) async {
     _isSaving = true;
     _error = null;
@@ -44,6 +45,7 @@ class ProfileProvider extends ChangeNotifier {
         name: name,
         email: email,
         address: address,
+        savedLocations: savedLocations,
       );
       return true;
     } catch (e) {
@@ -69,5 +71,25 @@ class ProfileProvider extends ChangeNotifier {
       _error = e.toString();
       notifyListeners();
     }
+  }
+
+  Future<bool> addSavedLocation(SavedLocation location) async {
+    if (_profile == null) {
+      await fetchProfile();
+      if (_profile == null) return false;
+    }
+    final updatedLocations = List<SavedLocation>.from(_profile!.savedLocations)
+      ..add(location);
+    return updateProfile(savedLocations: updatedLocations);
+  }
+
+  Future<bool> removeSavedLocation(String locationId) async {
+    if (_profile == null) {
+      await fetchProfile();
+      if (_profile == null) return false;
+    }
+    final updatedLocations = List<SavedLocation>.from(_profile!.savedLocations)
+      ..removeWhere((loc) => loc.id == locationId);
+    return updateProfile(savedLocations: updatedLocations);
   }
 }

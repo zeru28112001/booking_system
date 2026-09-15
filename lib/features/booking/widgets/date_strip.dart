@@ -12,12 +12,14 @@ class DateStrip extends StatelessWidget {
     required this.selectedDate,
     required this.onSelected,
     this.dayCount = 14,
+    this.isTodayDisabled = false,
   });
 
   /// 'yyyy-MM-dd'
   final String selectedDate;
   final ValueChanged<String> onSelected;
   final int dayCount;
+  final bool isTodayDisabled;
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +34,13 @@ class DateStrip extends StatelessWidget {
           final date = DateTime(today.year, today.month, today.day)
               .add(Duration(days: index));
           final iso = AppFormatters.isoDay(date);
+          final isDisabled = index == 0 && isTodayDisabled;
           return _DateChip(
             date: date,
             isToday: index == 0,
             isSelected: iso == selectedDate,
-            onTap: () => onSelected(iso),
+            isDisabled: isDisabled,
+            onTap: isDisabled ? null : () => onSelected(iso),
           );
         },
       ),
@@ -49,64 +53,78 @@ class _DateChip extends StatelessWidget {
     required this.date,
     required this.isToday,
     required this.isSelected,
-    required this.onTap,
+    this.isDisabled = false,
+    this.onTap,
   });
 
   final DateTime date;
   final bool isToday;
   final bool isSelected;
-  final VoidCallback onTap;
+  final bool isDisabled;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final foreground = isSelected ? AppTheme.onPrimary : AppTheme.onSurface;
+    final foreground = isDisabled
+        ? AppTheme.textHint
+        : (isSelected ? AppTheme.onPrimary : AppTheme.onSurface);
 
-    return Material(
-      color: isSelected ? AppTheme.primary : AppTheme.surface,
-      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-      child: InkWell(
-        onTap: onTap,
+    return Opacity(
+      opacity: isDisabled ? 0.45 : 1.0,
+      child: Material(
+        color: isSelected
+            ? AppTheme.primary
+            : (isDisabled ? AppTheme.surfaceVariant : AppTheme.surface),
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        child: Container(
-          width: 58,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-            border: Border.all(
-              color: isSelected ? AppTheme.primary : AppTheme.divider,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          child: Container(
+            width: 58,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+              border: Border.all(
+                color: isSelected ? AppTheme.primary : AppTheme.divider,
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                isToday ? 'Today' : AppFormatters.weekdayShort(date),
-                style: theme.textTheme.bodySmall?.copyWith(
-                      color: isSelected
-                          ? AppTheme.onPrimary.withAlpha(220)
-                          : AppTheme.textSecondary,
-                      fontSize: 11,
-                    ),
-              ),
-              const SizedBox(height: AppConstants.spaceXs),
-              Text(
-                '${date.day}',
-                style: theme.textTheme.titleMedium?.copyWith(
-                      color: foreground,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              Text(
-                AppFormatters.monthShort(date),
-                style: theme.textTheme.bodySmall?.copyWith(
-                      color: isSelected
-                          ? AppTheme.onPrimary.withAlpha(220)
-                          : AppTheme.textSecondary,
-                      fontSize: 11,
-                    ),
-              ),
-            ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  isToday ? (isDisabled ? 'Closed' : 'Today') : AppFormatters.weekdayShort(date),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                        color: isDisabled
+                            ? AppTheme.textHint
+                            : (isSelected
+                                ? AppTheme.onPrimary.withAlpha(220)
+                                : AppTheme.textSecondary),
+                        fontSize: 11,
+                        fontWeight: isDisabled ? FontWeight.bold : FontWeight.normal,
+                      ),
+                ),
+                const SizedBox(height: AppConstants.spaceXs),
+                Text(
+                  '${date.day}',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                        color: foreground,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                Text(
+                  AppFormatters.monthShort(date),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                        color: isDisabled
+                            ? AppTheme.textHint
+                            : (isSelected
+                                ? AppTheme.onPrimary.withAlpha(220)
+                                : AppTheme.textSecondary),
+                        fontSize: 11,
+                      ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

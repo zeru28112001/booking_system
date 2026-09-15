@@ -4,9 +4,10 @@ abstract class ProfileRepository {
   Future<UserProfile> getProfile();
 
   Future<UserProfile> updateProfile({
-    required String name,
-    required String email,
-    required String address,
+    String? name,
+    String? email,
+    String? address,
+    List<SavedLocation>? savedLocations,
   });
 
   Future<UserProfile> updatePreferences({

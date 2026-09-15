@@ -6,10 +6,13 @@ import 'package:provider/provider.dart';
 import 'core/network/api_client.dart';
 import 'core/network/socket_service.dart';
 import 'core/theme/app_theme.dart';
+import 'core/providers/location_provider.dart';
+import 'core/providers/maintenance_provider.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/data/services/auth_api_service.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/auth/screens/login_screen.dart';
+import 'features/auth/screens/maintenance_screen.dart';
 import 'features/auth/screens/otp_screen.dart';
 import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/splash_screen.dart';
@@ -184,6 +187,15 @@ final GoRouter _router = GoRouter(
       ),
     ),
     GoRoute(
+      path: '/search',
+      builder: (context, state) {
+        final query = state.uri.queryParameters['q'] ?? '';
+        return ProviderListScreen(
+          searchQuery: query,
+        );
+      },
+    ),
+    GoRoute(
       path: '/provider/:id',
       pageBuilder: (context, state) => _buildPageWithTransition(
         context: context,
@@ -193,7 +205,7 @@ final GoRouter _router = GoRouter(
           providerName: state.uri.queryParameters['name'] ?? '',
           // Cross-feature glue: provider entities → booking primitives, so
           // features/booking never imports features/provider.
-          onBook: (provider, servicesList, staff) async {
+          onBook: (screenContext, provider, servicesList, staff) async {
             final primaryServiceId = servicesList.isNotEmpty ? servicesList.first.id : '';
             final serviceName = servicesList.map((s) => s.name).join(' + ');
             final totalPrice =
@@ -203,7 +215,7 @@ final GoRouter _router = GoRouter(
             final itemized = servicesList.map((s) => s.name).toList();
 
             final bookingId = await showModalBottomSheet<String>(
-              context: context,
+              context: screenContext,
               isScrollControlled: true,
               useSafeArea: true,
               builder: (_) => BookingFormSheet(
@@ -215,9 +227,11 @@ final GoRouter _router = GoRouter(
                 durationMinutes: totalDuration,
                 staffId: staff?.id,
                 staffName: staff?.name,
+                isShop: provider.isShop,
                 isHomeService: provider.isHomeService,
                 providerAddress: provider.address,
                 itemizedServices: itemized,
+                isClosedToday: (!provider.isAvailable || !provider.isOpen),
               ),
             );
             // The sheet's context is gone after the await — route globally.
@@ -366,6 +380,9 @@ class BookingApp extends StatelessWidget {
           create: (_) => AuthProvider(authRepository: _authRepositoryImpl),
         ),
         ChangeNotifierProvider(
+          create: (_) => LocationProvider()..fetchGpsLocation(),
+        ),
+        ChangeNotifierProvider(
           create: (_) => HomeProvider(homeRepository: _homeRepositoryImpl),
         ),
         ChangeNotifierProvider(
@@ -401,12 +418,30 @@ class BookingApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AdminPortalProvider(apiClient: _apiClient),
         ),
+        Provider<HomeApiService>(
+          create: (_) => _homeApiService,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MaintenanceProvider(),
+        ),
       ],
       child: MaterialApp.router(
         title: "Zeru' Booking",
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         routerConfig: _router,
+        builder: (context, child) {
+          return Consumer2<MaintenanceProvider, AuthProvider>(
+            builder: (context, maintenance, auth, _) {
+              // Admin always bypasses maintenance screen
+              final isAdmin = auth.currentUser?.role == 'admin';
+              if (maintenance.isMaintenanceMode && !isAdmin) {
+                return const MaintenanceScreen();
+              }
+              return child ?? const SizedBox.shrink();
+            },
+          );
+        },
       ),
     );
   }

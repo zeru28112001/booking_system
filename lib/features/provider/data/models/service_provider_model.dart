@@ -25,6 +25,8 @@ class ServiceProviderModel extends ServiceProvider {
     super.isAvailable = true,
     super.isShop = false,
     super.isHomeService = false,
+    super.latitude,
+    super.longitude,
     super.services,
     super.reviews,
     super.staffList,
@@ -64,6 +66,12 @@ class ServiceProviderModel extends ServiceProvider {
       isHomeService: (json['is_home_service'] as bool?) ??
           (json['isHomeService'] as bool?) ??
           false,
+      latitude: json['location']?['coordinates'] != null && (json['location']['coordinates'] as List).length >= 2
+          ? (json['location']['coordinates'][1] as num).toDouble()
+          : null,
+      longitude: json['location']?['coordinates'] != null && (json['location']['coordinates'] as List).length >= 2
+          ? (json['location']['coordinates'][0] as num).toDouble()
+          : null,
       services: (json['services'] as List<dynamic>? ?? const [])
           .map((item) => ServiceModel.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -91,6 +99,11 @@ class ServiceProviderModel extends ServiceProvider {
         'is_open': isOpen,
         'is_shop': isShop,
         'is_home_service': isHomeService,
+        if (latitude != null && longitude != null)
+          'location': {
+            'type': 'Point',
+            'coordinates': [longitude, latitude],
+          },
         'services': services.map((s) => (s is ServiceModel ? s.toJson() : s)).toList(),
         'reviews': reviews.map((r) => (r is ReviewModel ? r.toJson() : r)).toList(),
         'staff': staffList.map((st) => (st is StaffModel ? st.toJson() : st)).toList(),
@@ -113,6 +126,8 @@ class ServiceProviderModel extends ServiceProvider {
     bool? isAvailable,
     bool? isShop,
     bool? isHomeService,
+    double? latitude,
+    double? longitude,
     List<Service>? services,
     List<Review>? reviews,
     List<Staff>? staffList,
@@ -133,6 +148,8 @@ class ServiceProviderModel extends ServiceProvider {
       isAvailable: isAvailable ?? this.isAvailable,
       isShop: isShop ?? this.isShop,
       isHomeService: isHomeService ?? this.isHomeService,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       services: services ?? this.services,
       reviews: reviews ?? this.reviews,
       staffList: staffList ?? this.staffList,

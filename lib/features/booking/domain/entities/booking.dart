@@ -11,7 +11,10 @@ class Booking {
     required this.serviceName,
     required this.date,
     required this.timeSlot,
+    this.bookingType = 'in_shop',
     required this.address,
+    this.latitude,
+    this.longitude,
     required this.notes,
     required this.paymentMethod,
     required this.status,
@@ -20,6 +23,8 @@ class Booking {
     required this.createdAt,
     this.staffId,
     this.staffName,
+    this.customerName,
+    this.customerPhone,
     this.paymentMethodId,
     this.paymentMethodConfig,
   });
@@ -31,6 +36,8 @@ class Booking {
   final String serviceName;
   final String? staffId;
   final String? staffName;
+  final String? customerName;
+  final String? customerPhone;
 
   /// 'yyyy-MM-dd'
   final String date;
@@ -38,7 +45,12 @@ class Booking {
   /// 'HH:mm' (24h)
   final String timeSlot;
 
+  /// 'in_shop' | 'home_service'
+  final String bookingType;
+
   final String address;
+  final double? latitude;
+  final double? longitude;
   final String notes;
 
   /// 'cash' | 'myanmyanpay' | 'stripe' or payment code
@@ -59,6 +71,9 @@ class Booking {
 
   Booking copyWith({
     String? status,
+    String? bookingType,
+    String? customerName,
+    String? customerPhone,
     String? paymentMethodId,
     PaymentMethodConfig? paymentMethodConfig,
   }) =>
@@ -70,9 +85,14 @@ class Booking {
         serviceName: serviceName,
         staffId: staffId,
         staffName: staffName,
+        customerName: customerName ?? this.customerName,
+        customerPhone: customerPhone ?? this.customerPhone,
         date: date,
         timeSlot: timeSlot,
+        bookingType: bookingType ?? this.bookingType,
         address: address,
+        latitude: latitude,
+        longitude: longitude,
         notes: notes,
         paymentMethod: paymentMethod,
         paymentMethodId: paymentMethodId ?? this.paymentMethodId,

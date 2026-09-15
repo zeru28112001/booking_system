@@ -30,7 +30,6 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: AppConstants.spaceSm),
             Material(
               color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                 side: const BorderSide(color: AppTheme.divider),
@@ -94,7 +93,6 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: AppConstants.spaceSm),
             Material(
               color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                 side: const BorderSide(color: AppTheme.divider),

@@ -1,5 +1,21 @@
 /// Domain entity — user profile details and app preferences.
 /// No JSON logic here. No HTTP imports.
+class SavedLocation {
+  const SavedLocation({
+    required this.id,
+    required this.label,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  final String id;
+  final String label;
+  final String address;
+  final double latitude;
+  final double longitude;
+}
+
 class UserProfile {
   const UserProfile({
     required this.id,
@@ -10,6 +26,7 @@ class UserProfile {
     this.avatarUrl,
     this.language = 'English',
     this.notificationsEnabled = true,
+    this.savedLocations = const [],
   });
 
   final String id;
@@ -20,6 +37,7 @@ class UserProfile {
   final String? avatarUrl;
   final String language;
   final bool notificationsEnabled;
+  final List<SavedLocation> savedLocations;
 
   UserProfile copyWith({
     String? name,
@@ -29,6 +47,7 @@ class UserProfile {
     String? avatarUrl,
     String? language,
     bool? notificationsEnabled,
+    List<SavedLocation>? savedLocations,
   }) {
     return UserProfile(
       id: id,
@@ -40,6 +59,7 @@ class UserProfile {
       language: language ?? this.language,
       notificationsEnabled:
           notificationsEnabled ?? this.notificationsEnabled,
+      savedLocations: savedLocations ?? this.savedLocations,
     );
   }
 

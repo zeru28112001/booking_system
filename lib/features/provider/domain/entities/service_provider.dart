@@ -21,6 +21,8 @@ class ServiceProvider {
     this.isAvailable = true,
     this.isShop = false,
     this.isHomeService = false,
+    this.latitude,
+    this.longitude,
     this.services = const [],
     this.reviews = const [],
     this.staffList = const [],
@@ -51,6 +53,9 @@ class ServiceProvider {
   /// True if home/on-site service (e.g. cleaning), false if customer visits salon/shop.
   final bool isHomeService;
 
+  final double? latitude;
+  final double? longitude;
+
   /// Populated only by detail fetches; empty in list summaries.
   final List<Service> services;
   final List<Review> reviews;
@@ -72,6 +77,8 @@ class ServiceProvider {
     bool? isAvailable,
     bool? isShop,
     bool? isHomeService,
+    double? latitude,
+    double? longitude,
     List<Service>? services,
     List<Review>? reviews,
     List<Staff>? staffList,
@@ -92,6 +99,8 @@ class ServiceProvider {
       isAvailable: isAvailable ?? this.isAvailable,
       isShop: isShop ?? this.isShop,
       isHomeService: isHomeService ?? this.isHomeService,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       services: services ?? this.services,
       reviews: reviews ?? this.reviews,
       staffList: staffList ?? this.staffList,

@@ -9,6 +9,9 @@ class StaffModel extends Staff {
     required super.isAvailableToday,
     super.avatarUrl,
     super.specialties = const [],
+    super.offDays,
+    super.shiftStartTime,
+    super.shiftEndTime,
   });
 
   factory StaffModel.fromJson(Map<String, dynamic> json) {
@@ -17,12 +20,19 @@ class StaffModel extends Staff {
       name: json['name'] as String? ?? '',
       role: json['role'] as String? ?? 'Staff Member',
       rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
-      isAvailableToday: json['is_available_today'] as bool? ?? true,
-      avatarUrl: json['avatar_url'] as String?,
+      isAvailableToday: json['isAvailableToday'] as bool? ??
+          json['is_available_today'] as bool? ??
+          json['isActive'] as bool? ??
+          json['is_active'] as bool? ??
+          true,
+      avatarUrl: json['avatar_url'] as String? ?? json['avatarUrl'] as String?,
       specialties: (json['specialties'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      offDays: (json['offDays'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      shiftStartTime: json['shiftStartTime'] as String?,
+      shiftEndTime: json['shiftEndTime'] as String?,
     );
   }
 
@@ -35,6 +45,9 @@ class StaffModel extends Staff {
       'is_available_today': isAvailableToday,
       'avatar_url': avatarUrl,
       'specialties': specialties,
+      'offDays': offDays,
+      'shiftStartTime': shiftStartTime,
+      'shiftEndTime': shiftEndTime,
     };
   }
 }

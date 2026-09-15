@@ -7,6 +7,9 @@ class ProviderStaff {
     required this.specialties,
     required this.isActive,
     required this.avatarUrl,
+    this.offDays = const [],
+    this.shiftStartTime,
+    this.shiftEndTime,
   });
 
   final String id;
@@ -15,4 +18,7 @@ class ProviderStaff {
   final List<String> specialties;
   final bool isActive;
   final String avatarUrl;
+  final List<String> offDays;
+  final String? shiftStartTime;
+  final String? shiftEndTime;
 }

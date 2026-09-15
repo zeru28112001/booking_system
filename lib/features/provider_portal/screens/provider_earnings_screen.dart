@@ -15,7 +15,9 @@ class ProviderEarningsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final provider = context.watch<ProviderPortalProvider>();
     final bookings = provider.bookings;
-    final List<Booking> completed = bookings.where((b) => b.status == 'completed').toList();
+    final List<Booking> revenueList = bookings
+        .where((b) => b.status == 'completed' || b.status == 'accepted' || b.status == 'in_progress')
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -71,20 +73,25 @@ class ProviderEarningsScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppConstants.spaceSm),
 
-            if (completed.isEmpty)
+            if (revenueList.isEmpty)
               const AppEmptyState(
                 icon: Icons.history_rounded,
-                title: 'No completed bookings yet',
-                subtitle: 'Completed bookings and earnings history will show up here.',
+                title: 'No earnings recorded yet',
+                subtitle: 'Completed and active booking earnings will show up here.',
               )
             else
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: completed.length,
+                itemCount: revenueList.length,
                 separatorBuilder: (ctx, i) => const SizedBox(height: AppConstants.spaceSm),
                 itemBuilder: (context, index) {
-                  final b = completed[index];
+                  final b = revenueList[index];
+                  final isCompleted = b.status == 'completed';
+                  final badgeColor = isCompleted
+                      ? AppTheme.success
+                      : (b.status == 'accepted' ? AppTheme.primary : AppTheme.warning);
+
                   return Container(
                     padding: const EdgeInsets.all(AppConstants.spaceMd),
                     decoration: BoxDecoration(
@@ -97,19 +104,46 @@ class ProviderEarningsScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppTheme.success.withAlpha(20),
+                            color: badgeColor.withAlpha(20),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.arrow_downward_rounded, color: AppTheme.success, size: 20),
+                          child: Icon(
+                            isCompleted ? Icons.check_circle_outline_rounded : Icons.arrow_downward_rounded,
+                            color: badgeColor,
+                            size: 20,
+                          ),
                         ),
                         const SizedBox(width: AppConstants.spaceMd),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(b.serviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Row(
+                                children: [
+                                  Text(b.serviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: badgeColor.withAlpha(25),
+                                      borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+                                    ),
+                                    child: Text(
+                                      b.status.toUpperCase(),
+                                      style: TextStyle(
+                                        color: badgeColor,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               const SizedBox(height: 2),
-                              Text('${b.date} · ${b.paymentMethod.toUpperCase()}', style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary)),
+                              Text(
+                                '${b.date} · ${b.timeSlot} · ${b.paymentMethod.toUpperCase()}',
+                                style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
+                              ),
                             ],
                           ),
                         ),

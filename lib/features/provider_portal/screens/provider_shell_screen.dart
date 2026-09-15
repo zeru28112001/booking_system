@@ -39,9 +39,9 @@ class _ProviderShellScreenState extends State<ProviderShellScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: KeyedSubtree(
+        key: ValueKey(_currentIndex),
+        child: _screens[_currentIndex],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

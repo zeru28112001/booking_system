@@ -10,6 +10,10 @@ import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../domain/entities/payment_method.dart';
 import '../providers/booking_provider.dart';
+import '../../profile/providers/profile_provider.dart';
+import '../../profile/domain/entities/user_profile.dart';
+import '../../home/screens/map_location_picker_screen.dart';
+import '../../../core/providers/location_provider.dart';
 import 'date_strip.dart';
 import 'payment_method_picker.dart';
 import 'time_slot_grid.dart';
@@ -31,9 +35,11 @@ class BookingFormSheet extends StatefulWidget {
     required this.durationMinutes,
     this.staffId,
     this.staffName,
+    this.isShop = true,
     this.isHomeService = true,
     this.providerAddress = '',
     this.itemizedServices,
+    this.isClosedToday = false,
   });
 
   final String providerId;
@@ -44,9 +50,11 @@ class BookingFormSheet extends StatefulWidget {
   final int durationMinutes;
   final String? staffId;
   final String? staffName;
+  final bool isShop;
   final bool isHomeService;
   final String providerAddress;
   final List<String>? itemizedServices;
+  final bool isClosedToday;
 
   @override
   State<BookingFormSheet> createState() => _BookingFormSheetState();
@@ -55,17 +63,33 @@ class BookingFormSheet extends StatefulWidget {
 class _BookingFormSheetState extends State<BookingFormSheet> {
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _notesController = TextEditingController();
 
   int _step = 0;
-  String _selectedDate = AppFormatters.isoDay(DateTime.now());
+  late String _selectedDate;
   String? _selectedTime;
+  String? _selectedLocationId;
+  late String _selectedServiceLocationType; // 'in_shop' | 'home_service'
   PaymentMethod _paymentMethod = PaymentMethod.cash;
   PaymentMethodConfig? _selectedPaymentConfig;
 
   @override
   void initState() {
     super.initState();
+    final initialDateObj = widget.isClosedToday
+        ? DateTime.now().add(const Duration(days: 1))
+        : DateTime.now();
+    _selectedDate = AppFormatters.isoDay(initialDateObj);
+
+    if (widget.isShop && widget.isHomeService) {
+      _selectedServiceLocationType = 'in_shop';
+    } else if (widget.isShop) {
+      _selectedServiceLocationType = 'in_shop';
+    } else {
+      _selectedServiceLocationType = 'home_service';
+    }
+
     // Deferring keeps notifyListeners out of the build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -73,12 +97,42 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
       context
           .read<BookingProvider>()
           .fetchProviderPaymentMethods(widget.providerId);
+          
+      final profileProvider = context.read<ProfileProvider>();
+      if (profileProvider.profile == null) {
+        profileProvider.fetchProfile().then((_) {
+          if (mounted && profileProvider.profile != null) {
+            if (_phoneController.text.isEmpty && profileProvider.profile!.phone.isNotEmpty) {
+              _phoneController.text = profileProvider.profile!.phone;
+            }
+            final locs = profileProvider.profile?.savedLocations ?? [];
+            if (locs.isNotEmpty && _selectedLocationId == null) {
+              setState(() {
+                _selectedLocationId = locs.first.id;
+                _addressController.text = locs.first.address;
+              });
+            }
+          }
+        });
+      } else {
+        if (_phoneController.text.isEmpty && profileProvider.profile!.phone.isNotEmpty) {
+          _phoneController.text = profileProvider.profile!.phone;
+        }
+        final locs = profileProvider.profile?.savedLocations ?? [];
+        if (locs.isNotEmpty && _selectedLocationId == null) {
+          setState(() {
+            _selectedLocationId = locs.first.id;
+            _addressController.text = locs.first.address;
+          });
+        }
+      }
     });
   }
 
   @override
   void dispose() {
     _addressController.dispose();
+    _phoneController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -106,9 +160,8 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
 
   void _continueToPayment() {
     if (_selectedTime == null) return;
-    if (widget.isHomeService) {
-      if (!(_formKey.currentState?.validate() ?? false)) return;
-    }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     setState(() => _step = 1);
   }
 
@@ -116,9 +169,11 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
     final bookingProvider = context.read<BookingProvider>();
     bookingProvider.clearError();
 
-    final addressToSave = widget.isHomeService
+    final isHome = _selectedServiceLocationType == 'home_service';
+
+    final addressToSave = isHome
         ? _addressController.text.trim()
-        : 'At Salon (${widget.providerAddress.isNotEmpty ? widget.providerAddress : 'Shop Location'})';
+        : 'At Salon (${widget.providerAddress.isNotEmpty ? widget.providerAddress : widget.providerName})';
 
     final activeConfig = _selectedPaymentConfig ??
         (bookingProvider.providerPaymentMethods.isNotEmpty
@@ -134,6 +189,21 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
         ? activeConfig!.id
         : _paymentMethod.value;
 
+    double? lat;
+    double? lng;
+    if (isHome) {
+      final profileLocations = context.read<ProfileProvider>().profile?.savedLocations ?? [];
+      final selectedLoc = profileLocations.where((l) => l.id == _selectedLocationId).firstOrNull;
+      if (selectedLoc != null) {
+        lat = selectedLoc.latitude;
+        lng = selectedLoc.longitude;
+      } else {
+        final locProv = context.read<LocationProvider>();
+        lat = locProv.activeLat;
+        lng = locProv.activeLng;
+      }
+    }
+
     final booking = await bookingProvider.createBooking(
       providerId: widget.providerId,
       providerName: widget.providerName,
@@ -141,7 +211,10 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
       serviceName: widget.serviceName,
       date: _selectedDate,
       timeSlot: _selectedTime ?? '',
+      bookingType: _selectedServiceLocationType,
       address: addressToSave,
+      latitude: lat,
+      longitude: lng,
       notes: _notesController.text.trim(),
       paymentMethod: paymentMethodParam,
       price: widget.price,
@@ -297,7 +370,11 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
         const SizedBox(height: AppConstants.spaceLg),
         Text('Select date', style: theme.textTheme.titleMedium),
         const SizedBox(height: AppConstants.spaceSm),
-        DateStrip(selectedDate: _selectedDate, onSelected: _onDateSelected),
+        DateStrip(
+          selectedDate: _selectedDate,
+          onSelected: _onDateSelected,
+          isTodayDisabled: widget.isClosedToday,
+        ),
         const SizedBox(height: AppConstants.spaceMd),
         Text('Select time', style: theme.textTheme.titleMedium),
         const SizedBox(height: AppConstants.spaceSm),
@@ -321,79 +398,207 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
             onSelected: _onTimeSelected,
           ),
         const SizedBox(height: AppConstants.spaceLg),
-        if (widget.isHomeService)
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                AppTextField(
-                  controller: _addressController,
-                  label: 'Service address',
-                  hint: 'House no., street, township',
-                  prefixIcon: Icons.location_on_outlined,
-                  textInputAction: TextInputAction.next,
-                  validator: (value) =>
-                      (value == null || value.trim().isEmpty)
-                          ? 'Please enter your address'
-                          : null,
-                ),
-                const SizedBox(height: AppConstants.spaceMd),
-                AppTextField(
-                  controller: _notesController,
-                  label: 'Notes (optional)',
-                  hint: 'Anything the provider should know?',
-                  prefixIcon: Icons.notes_rounded,
-                  maxLines: 3,
-                  textInputAction: TextInputAction.done,
-                  maxLength: 200,
-                ),
-              ],
-            ),
-          )
-        else
-          Column(
+        Form(
+          key: _formKey,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(AppConstants.spaceMd),
-                decoration: BoxDecoration(
-                  color: AppTheme.surfaceVariant.withAlpha(120),
-                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                  border: Border.all(color: AppTheme.divider),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              if (widget.isShop && widget.isHomeService) ...[
+                Text('Service Location Mode', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: AppConstants.spaceSm),
+                Row(
                   children: [
-                    const Icon(Icons.storefront_rounded,
-                        color: AppTheme.primary, size: 20),
+                    Expanded(
+                      child: ChoiceChip(
+                        showCheckmark: false,
+                        avatar: Icon(
+                          Icons.storefront_rounded,
+                          size: 18,
+                          color: _selectedServiceLocationType == 'in_shop' ? Colors.white : AppTheme.textSecondary,
+                        ),
+                        label: Center(
+                          child: Text(
+                            'At Shop',
+                            style: TextStyle(
+                              color: _selectedServiceLocationType == 'in_shop' ? Colors.white : AppTheme.onSurface,
+                              fontWeight: _selectedServiceLocationType == 'in_shop' ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        selected: _selectedServiceLocationType == 'in_shop',
+                        selectedColor: AppTheme.primary,
+                        backgroundColor: AppTheme.surfaceVariant,
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() => _selectedServiceLocationType = 'in_shop');
+                          }
+                        },
+                      ),
+                    ),
                     const SizedBox(width: AppConstants.spaceSm),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Service Location',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.primary,
-                                ),
+                      child: ChoiceChip(
+                        showCheckmark: false,
+                        avatar: Icon(
+                          Icons.home_outlined,
+                          size: 18,
+                          color: _selectedServiceLocationType == 'home_service' ? Colors.white : AppTheme.textSecondary,
+                        ),
+                        label: Center(
+                          child: Text(
+                            'Home Service',
+                            style: TextStyle(
+                              color: _selectedServiceLocationType == 'home_service' ? Colors.white : AppTheme.onSurface,
+                              fontWeight: _selectedServiceLocationType == 'home_service' ? FontWeight.bold : FontWeight.normal,
+                            ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'At Salon — ${widget.providerAddress.isNotEmpty ? widget.providerAddress : widget.providerName}',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
+                        ),
+                        selected: _selectedServiceLocationType == 'home_service',
+                        selectedColor: AppTheme.primary,
+                        backgroundColor: AppTheme.surfaceVariant,
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() => _selectedServiceLocationType = 'home_service');
+                          }
+                        },
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: AppConstants.spaceMd),
+              ],
+              if (_selectedServiceLocationType == 'home_service') ...[
+                Builder(
+                  builder: (context) {
+                    final savedLocations = context.watch<ProfileProvider>().profile?.savedLocations ?? [];
+                    
+                    // Safely validate _selectedLocationId against actual available item values
+                    String? activeLocationValue;
+                    if (savedLocations.any((l) => l.id == _selectedLocationId)) {
+                      activeLocationValue = _selectedLocationId;
+                    } else if (savedLocations.isNotEmpty) {
+                      activeLocationValue = savedLocations.last.id;
+                    }
+
+                    return DropdownButtonFormField<String>(
+                      key: Key('addr_dropdown_${activeLocationValue}_${savedLocations.length}'),
+                      value: activeLocationValue,
+                      decoration: InputDecoration(
+                        labelText: 'Service address',
+                        prefixIcon: const Icon(Icons.location_on_outlined, color: AppTheme.textSecondary),
+                        filled: true,
+                        fillColor: AppTheme.surfaceVariant,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                          borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                        ),
+                      ),
+                      isExpanded: true,
+                      items: [
+                        ...savedLocations.map((loc) => DropdownMenuItem(
+                          value: loc.id,
+                          child: Text('${loc.label} - ${loc.address}', maxLines: 1, overflow: TextOverflow.ellipsis),
+                        )),
+                        const DropdownMenuItem(
+                          value: 'ADD_NEW',
+                          child: Text('+ Add New Location...', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                      onChanged: (value) async {
+                        if (value == 'ADD_NEW') {
+                          final newLoc = await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MapLocationPickerScreen()),
+                          );
+                          if (newLoc != null && newLoc is SavedLocation) {
+                            final updatedLocs = context.read<ProfileProvider>().profile?.savedLocations ?? [];
+                            final match = updatedLocs.firstWhere(
+                              (l) => l.id == newLoc.id || (l.label == newLoc.label && l.address == newLoc.address),
+                              orElse: () => updatedLocs.isNotEmpty ? updatedLocs.last : newLoc,
+                            );
+                            setState(() {
+                              _selectedLocationId = match.id;
+                              _addressController.text = match.address;
+                            });
+                          }
+                        } else if (value != null) {
+                          final profile = context.read<ProfileProvider>().profile;
+                          final loc = profile?.savedLocations.where((l) => l.id == value).firstOrNull;
+                          if (loc != null) {
+                            setState(() {
+                              _selectedLocationId = value;
+                              _addressController.text = loc.address;
+                            });
+                          }
+                        }
+                      },
+                      validator: (value) =>
+                          (value == null || value == 'ADD_NEW')
+                              ? 'Please select your address'
+                              : null,
+                    );
+                  },
+                ),
+                const SizedBox(height: AppConstants.spaceMd),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(AppConstants.spaceMd),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceVariant.withAlpha(120),
+                    borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                    border: Border.all(color: AppTheme.divider),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.storefront_rounded, color: AppTheme.primary, size: 20),
+                      const SizedBox(width: AppConstants.spaceSm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Service Location',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'At Salon — ${widget.providerAddress.isNotEmpty ? widget.providerAddress : widget.providerName}',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppConstants.spaceMd),
+              ],
+              AppTextField(
+                controller: _phoneController,
+                label: 'Contact Phone Number',
+                hint: 'e.g. 09123456789',
+                prefixIcon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Please enter your contact phone number';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: AppConstants.spaceMd),
               AppTextField(
                 controller: _notesController,
                 label: 'Notes (optional)',
-                hint: 'Anything the salon should know?',
+                hint: 'Anything the provider should know?',
                 prefixIcon: Icons.notes_rounded,
                 maxLines: 2,
                 textInputAction: TextInputAction.done,
@@ -401,6 +606,7 @@ class _BookingFormSheetState extends State<BookingFormSheet> {
               ),
             ],
           ),
+        ),
         const SizedBox(height: AppConstants.spaceSm),
       ],
     );

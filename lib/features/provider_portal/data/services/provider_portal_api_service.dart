@@ -33,6 +33,13 @@ class ProviderPortalApiService {
     return ProviderProfileModel.fromJson(map);
   }
 
+  Future<void> submitProfileChangeRequest(ProviderProfileModel profile) async {
+    await apiClient.post(
+      '/provider-portal/profile-request',
+      body: profile.toJson(),
+    );
+  }
+
   Future<ProviderProfileModel> toggleAvailability(bool isAvailable) async {
     final data = await apiClient.patch('/provider-portal/availability', body: {
       'isAvailable': isAvailable,
@@ -141,6 +148,9 @@ class ProviderPortalApiService {
       'specialties': staff.specialties,
       'isActive': staff.isActive,
       'avatarUrl': staff.avatarUrl,
+      'offDays': staff.offDays,
+      'shiftStartTime': staff.shiftStartTime,
+      'shiftEndTime': staff.shiftEndTime,
     });
     final map = data is Map<String, dynamic>
         ? (data['data'] as Map<String, dynamic>? ?? data)
@@ -155,6 +165,9 @@ class ProviderPortalApiService {
       'specialties': staff.specialties,
       'isActive': staff.isActive,
       'avatarUrl': staff.avatarUrl,
+      'offDays': staff.offDays,
+      'shiftStartTime': staff.shiftStartTime,
+      'shiftEndTime': staff.shiftEndTime,
     });
     final map = data is Map<String, dynamic>
         ? (data['data'] as Map<String, dynamic>? ?? data)

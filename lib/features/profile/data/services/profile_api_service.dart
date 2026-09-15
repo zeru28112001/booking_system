@@ -1,4 +1,5 @@
 import '../../../../core/network/api_client.dart';
+import '../../domain/entities/user_profile.dart';
 import '../models/profile_model.dart';
 
 class ProfileApiService {
@@ -15,16 +16,28 @@ class ProfileApiService {
   }
 
   Future<ProfileModel> updateProfile({
-    required String name,
-    required String email,
-    required String address,
+    String? name,
+    String? email,
+    String? address,
+    List<SavedLocation>? savedLocations,
   }) async {
     final data = await apiClient.put(
       '/profile',
       body: {
-        'name': name,
-        'email': email,
-        'address': address,
+        if (name != null) 'name': name,
+        if (email != null) 'email': email,
+        if (address != null) 'address': address,
+        if (savedLocations != null)
+          'savedLocations': savedLocations
+              .map((e) => {
+                    'label': e.label,
+                    'address': e.address,
+                    'location': {
+                      'type': 'Point',
+                      'coordinates': [e.longitude, e.latitude],
+                    }
+                  })
+              .toList(),
       },
     );
     final map = data is Map<String, dynamic>

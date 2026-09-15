@@ -3,7 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/maintenance_provider.dart';
+import '../../../../features/home/data/services/home_api_service.dart';
 import '../providers/auth_provider.dart';
+import 'maintenance_screen.dart';
 
 /// Splash screen: animated logo → checks auth token → routes to Home or Login.
 class SplashScreen extends StatefulWidget {
@@ -37,11 +40,47 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _checkAuth() async {
     await Future.delayed(AppConstants.splashDelay);
     if (!mounted) return;
+
+    // Check maintenance mode BEFORE auth (no token needed)
+    try {
+      final homeService = context.read<HomeApiService>();
+      final settings = await homeService.getPublicSettings();
+      final isMaintenance = settings['isMaintenanceMode'] as bool? ?? false;
+
+      if (isMaintenance && mounted) {
+        // Admins still get through; everyone else sees the maintenance page
+        final auth = context.read<AuthProvider>();
+        await auth.checkAuthState();
+        if (!mounted) return;
+        if (auth.currentUser?.role == 'admin') {
+          context.go('/admin-dashboard');
+          return;
+        }
+        // Set initial state in provider so the overlay also activates
+        context.read<MaintenanceProvider>().setInitial(true);
+        // Non-admin: push maintenance screen (overlay handles future changes too)
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MaintenanceScreen()),
+        );
+        return;
+      }
+    } catch (_) {
+      // If settings fetch fails, proceed normally
+    }
+
+    if (!mounted) return;
     final auth = context.read<AuthProvider>();
     await auth.checkAuthState();
     if (!mounted) return;
     if (auth.isAuthenticated) {
-      context.go('/home');
+      final role = auth.currentUser?.role ?? 'customer';
+      if (role == 'admin') {
+        context.go('/admin-dashboard');
+      } else if (role == 'provider') {
+        context.go('/provider-dashboard');
+      } else {
+        context.go('/home');
+      }
     } else {
       context.go('/login');
     }

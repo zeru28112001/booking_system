@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../providers/provider_portal_provider.dart';
+import '../widgets/provider_booking_details_sheet.dart';
 
 class ProviderDashboardScreen extends StatefulWidget {
   const ProviderDashboardScreen({super.key});
@@ -225,14 +226,20 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       separatorBuilder: (ctx, i) => const SizedBox(height: AppConstants.spaceSm),
                       itemBuilder: (context, index) {
                         final booking = pending[index];
-                        return Container(
-                          padding: const EdgeInsets.all(AppConstants.spaceMd),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surface,
+                        return Card(
+                          margin: EdgeInsets.zero,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                            border: Border.all(color: AppTheme.divider),
+                            side: const BorderSide(color: AppTheme.divider),
                           ),
-                          child: Column(
+                          color: AppTheme.surface,
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: () => ProviderBookingDetailsSheet.show(context, booking),
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppConstants.spaceMd),
+                              child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
@@ -262,50 +269,73 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                                     '${booking.date} at ${booking.timeSlot}',
                                     style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
                                   ),
-                                  const SizedBox(width: 12),
-                                  const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      booking.address,
-                                      style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                  if (booking.bookingType == 'home_service' && booking.latitude != null && booking.longitude != null) ...[
+                                    const SizedBox(width: 12),
+                                    const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        booking.address,
+                                        style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               ),
                               const SizedBox(height: AppConstants.spaceMd),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      icon: const Icon(Icons.close_rounded, size: 18, color: AppTheme.error),
-                                      label: const Text('Reject', style: TextStyle(color: AppTheme.error)),
-                                      onPressed: () {
-                                        provider.updateBookingStatus(booking.id, 'cancelled');
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: AppConstants.spaceMd),
-                                  Expanded(
-                                    child: ElevatedButton.icon(
-                                      icon: const Icon(Icons.check_rounded, size: 18),
-                                      label: const Text('Accept'),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppTheme.success,
+                              GestureDetector(
+                                onTap: () {}, // Prevent parent InkWell tap
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        icon: const Icon(Icons.close_rounded, size: 18, color: AppTheme.error),
+                                        label: const Text('Reject', style: TextStyle(color: AppTheme.error)),
+                                        onPressed: () async {
+                                          final success = await provider.updateBookingStatus(booking.id, 'cancelled');
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(success ? 'Booking rejected' : 'Failed to reject booking'),
+                                                backgroundColor: success ? AppTheme.error : null,
+                                              ),
+                                            );
+                                          }
+                                        },
                                       ),
-                                      onPressed: () {
-                                        provider.updateBookingStatus(booking.id, 'accepted');
-                                      },
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: AppConstants.spaceMd),
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        icon: const Icon(Icons.check_rounded, size: 18),
+                                        label: const Text('Accept'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppTheme.success,
+                                        ),
+                                        onPressed: () async {
+                                          final success = await provider.updateBookingStatus(booking.id, 'accepted');
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(success ? 'Booking accepted!' : 'Failed to accept booking'),
+                                                backgroundColor: success ? AppTheme.success : null,
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
+                              ],
+                            ),
                           ),
-                        );
-                      },
+                        ),
+                      );
+                    },
                     ),
                 ],
               ),

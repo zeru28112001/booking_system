@@ -12,7 +12,10 @@ class BookingModel extends Booking {
     required super.serviceName,
     required super.date,
     required super.timeSlot,
+    super.bookingType = 'in_shop',
     required super.address,
+    super.latitude,
+    super.longitude,
     required super.notes,
     required super.paymentMethod,
     required super.status,
@@ -23,6 +26,8 @@ class BookingModel extends Booking {
     super.staffName,
     super.paymentMethodId,
     super.paymentMethodConfig,
+    super.customerName,
+    super.customerPhone,
     this.customerId,
   });
 
@@ -40,9 +45,24 @@ class BookingModel extends Booking {
       pmId = pmIdRaw.toString();
     }
 
+    String? cName;
+    String? cPhone;
+    String? cId;
+
+    final customerRaw = json['customer_id'] ?? json['customerId'];
+    if (customerRaw is Map<String, dynamic>) {
+      cId = (customerRaw['_id'] ?? customerRaw['id'] ?? '').toString();
+      cName = customerRaw['name']?.toString();
+      cPhone = customerRaw['phone']?.toString();
+    } else if (customerRaw != null) {
+      cId = customerRaw.toString();
+    }
+
     return BookingModel(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
-      customerId: (json['customer_id'] ?? json['customerId'] ?? '').toString(),
+      customerId: cId ?? '',
+      customerName: cName,
+      customerPhone: cPhone,
       providerId: (json['provider_id'] ?? json['providerId'] ?? '').toString(),
       providerName: (json['provider_name'] as String?) ??
           (json['providerName'] as String?) ??
@@ -58,7 +78,12 @@ class BookingModel extends Booking {
       timeSlot: (json['time_slot'] as String?) ??
           (json['timeSlot'] as String?) ??
           '',
+      bookingType: (json['booking_type'] as String?) ??
+          (json['bookingType'] as String?) ??
+          'in_shop',
       address: (json['address'] as String?) ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
       notes: (json['notes'] as String?) ?? '',
       paymentMethodId: pmId,
       paymentMethodConfig: pmConfig,
@@ -86,7 +111,10 @@ class BookingModel extends Booking {
         'staff_name': staffName,
         'date': date,
         'time_slot': timeSlot,
+        'booking_type': bookingType,
         'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
         'notes': notes,
         'payment_method': paymentMethod,
         'payment_method_id': paymentMethodId,
@@ -99,12 +127,17 @@ class BookingModel extends Booking {
   @override
   BookingModel copyWith({
     String? status,
+    String? bookingType,
+    String? customerName,
+    String? customerPhone,
     String? paymentMethodId,
     PaymentMethodConfig? paymentMethodConfig,
   }) =>
       BookingModel(
         id: id,
         customerId: customerId,
+        customerName: customerName ?? this.customerName,
+        customerPhone: customerPhone ?? this.customerPhone,
         providerId: providerId,
         providerName: providerName,
         serviceId: serviceId,
@@ -113,6 +146,7 @@ class BookingModel extends Booking {
         staffName: staffName,
         date: date,
         timeSlot: timeSlot,
+        bookingType: bookingType ?? this.bookingType,
         address: address,
         notes: notes,
         paymentMethod: paymentMethod,

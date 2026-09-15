@@ -14,8 +14,39 @@ class ProviderRepositoryImpl implements ProviderRepository {
   // ── ProviderRepository ────────────────────────────────────────────────────
 
   @override
-  Future<List<ServiceProvider>> getProvidersByCategory(String categoryId) async {
-    return providerApiService.getProvidersByCategory(categoryId);
+  Future<List<ServiceProvider>> getProvidersByCategory(
+    String categoryId, {
+    double? lat,
+    double? lng,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final models = await providerApiService.getProvidersByCategory(
+      categoryId,
+      lat: lat,
+      lng: lng,
+      page: page,
+      limit: limit,
+    );
+    return models;
+  }
+
+  @override
+  Future<List<ServiceProvider>> searchProviders({
+    String? query,
+    double? lat,
+    double? lng,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final models = await providerApiService.searchProviders(
+      query: query,
+      lat: lat,
+      lng: lng,
+      page: page,
+      limit: limit,
+    );
+    return models;
   }
 
   @override

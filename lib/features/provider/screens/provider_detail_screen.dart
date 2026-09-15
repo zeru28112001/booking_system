@@ -33,6 +33,7 @@ class ProviderDetailScreen extends StatefulWidget {
   final String providerId;
   final String providerName;
   final void Function(
+    BuildContext context,
     ServiceProvider provider,
     List<Service> services,
     Staff? staff,
@@ -133,14 +134,14 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.storefront_outlined, color: AppTheme.warning, size: 24),
+                        const Icon(Icons.info_outline_rounded, color: AppTheme.warning, size: 24),
                         const SizedBox(width: AppConstants.spaceSm),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Shop is Currently Busy / Closed',
+                                'Shop is Currently Busy / Closed Today',
                                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: AppTheme.warning,
@@ -148,7 +149,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'This provider is not taking new bookings right now. Please check back later.',
+                                'Not taking same-day bookings today. You can still schedule an appointment for upcoming days below.',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: AppTheme.onSurface,
                                     ),
@@ -267,16 +268,17 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                   ],
                   AppButton(
                     label: (!provider.isAvailable || !provider.isOpen)
-                        ? 'Shop Currently Closed / Busy'
+                        ? (selectedList.length > 1
+                            ? 'Schedule ${selectedList.length} Services for Future Date'
+                            : 'Schedule for Future Date')
                         : selectedList.length > 1
                             ? 'Book ${selectedList.length} Services (${AppFormatters.currency(totalPrice)})'
                             : 'Book Now',
-                    icon: (!provider.isAvailable || !provider.isOpen)
-                        ? Icons.block_rounded
-                        : Icons.calendar_month_rounded,
-                    onPressed: (widget.onBook == null || !provider.isAvailable || !provider.isOpen)
+                    icon: Icons.calendar_month_rounded,
+                    onPressed: widget.onBook == null
                         ? null
                         : () => widget.onBook!(
+                              context,
                               provider,
                               effectiveList,
                               _selectedStaff,

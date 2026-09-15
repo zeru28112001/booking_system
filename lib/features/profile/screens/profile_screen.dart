@@ -106,6 +106,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: AppConstants.spaceLg),
+                if (context.watch<AuthProvider>().currentUser?.role == 'admin') ...[
+                  _ProfileMenuItem(
+                    icon: Icons.admin_panel_settings_rounded,
+                    title: 'Switch to Admin Portal',
+                    subtitle: 'Manage platform metrics, providers & bookings',
+                    iconColor: AppTheme.primary,
+                    onTap: () => context.go('/admin-dashboard'),
+                  ),
+                ] else if (context.watch<AuthProvider>().currentUser?.role == 'provider') ...[
+                  _ProfileMenuItem(
+                    icon: Icons.storefront_rounded,
+                    title: 'Switch to Provider Portal',
+                    subtitle: 'Manage shop schedule, services & earnings',
+                    iconColor: AppTheme.primary,
+                    onTap: () => context.go('/provider-dashboard'),
+                  ),
+                ],
                 _ProfileMenuItem(
                   icon: Icons.edit_outlined,
                   title: 'Edit Profile',
