@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
@@ -390,11 +391,24 @@ Future<void> main() async {
   SocketService().init(baseUrl);
 
   try {
-    await Firebase.initializeApp();
+    if (kIsWeb) {
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: "AIzaSyBoRMWPXX8VT_-zoC01dxbJIwjtJ1tTah4",
+          appId: "1:403293087581:web:booking_system",
+          messagingSenderId: "403293087581",
+          projectId: "booking-1fb15",
+          authDomain: "booking-1fb15.firebaseapp.com",
+          storageBucket: "booking-1fb15.firebasestorage.app",
+        ),
+      );
+    } else {
+      await Firebase.initializeApp();
+    }
     FCMService().init(apiClient: _apiClient, messengerKey: scaffoldMessengerKey);
     await FCMService().setupFCM();
   } catch (e) {
-    debugPrint('⚠️ [Firebase] Native initialization skipped or fallback mode: $e');
+    debugPrint('⚠️ [Firebase] Native initialization error: $e');
   }
 
   runApp(const BookingApp());
