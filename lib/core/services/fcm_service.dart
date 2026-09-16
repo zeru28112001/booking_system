@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../network/api_client.dart';
 
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (kDebugMode) {
+    print('🌙 [FCM Background Message]: ${message.messageId}');
+  }
+}
+
 class FCMService {
   factory FCMService() => _instance;
   FCMService._internal();
@@ -22,6 +29,9 @@ class FCMService {
 
   Future<void> setupFCM() async {
     try {
+      // Register background message handler
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
       // 1. Request Notification Permissions
       final settings = await _firebaseMessaging.requestPermission(
         alert: true,
