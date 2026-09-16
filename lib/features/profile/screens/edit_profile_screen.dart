@@ -17,7 +17,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _emailController;
-  late TextEditingController _addressController;
 
   @override
   void initState() {
@@ -25,14 +24,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final profile = context.read<ProfileProvider>().profile;
     _nameController = TextEditingController(text: profile?.name ?? '');
     _emailController = TextEditingController(text: profile?.email ?? '');
-    _addressController = TextEditingController(text: profile?.address ?? '');
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _addressController.dispose();
     super.dispose();
   }
 
@@ -42,7 +39,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final success = await context.read<ProfileProvider>().updateProfile(
           name: _nameController.text.trim(),
           email: _emailController.text.trim(),
-          address: _addressController.text.trim(),
         );
 
     if (!mounted) return;
@@ -92,15 +88,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 label: 'Phone Number (Read Only)',
                 prefixIcon: Icons.phone_outlined,
                 readOnly: true,
-              ),
-              const SizedBox(height: AppConstants.spaceMd),
-              AppTextField(
-                controller: _addressController,
-                label: 'Primary Service Address',
-                prefixIcon: Icons.location_on_outlined,
-                maxLines: 2,
-                validator: (val) =>
-                    val == null || val.trim().isEmpty ? 'Address is required' : null,
               ),
               const SizedBox(height: AppConstants.spaceXl),
               Consumer<ProfileProvider>(

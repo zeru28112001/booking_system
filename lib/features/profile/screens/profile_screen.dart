@@ -126,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _ProfileMenuItem(
                   icon: Icons.edit_outlined,
                   title: 'Edit Profile',
-                  subtitle: 'Update your name, email & address',
+                  subtitle: 'Update your name & email',
                   onTap: () => context.push('/edit-profile'),
                 ),
                 _ProfileMenuItem(

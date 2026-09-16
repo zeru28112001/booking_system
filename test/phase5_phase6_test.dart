@@ -95,7 +95,6 @@ void main() {
         name: 'Khin Su Su',
         phone: '09 987 654 321',
         email: 'khinsusu@gmail.com',
-        address: 'Yangon',
         notificationsEnabled: true,
         language: 'English',
       );
@@ -122,12 +121,10 @@ void main() {
       final updated = await repo.updateProfile(
         name: 'Su Su Khin',
         email: 'susu@gmail.com',
-        address: 'Mandalay',
       );
 
       expect(updated.name, 'Su Su Khin');
       expect(updated.email, 'susu@gmail.com');
-      expect(updated.address, 'Mandalay');
     });
 
     test('ProfileProvider fetch and update preferences', () async {

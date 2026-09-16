@@ -6,7 +6,6 @@ abstract class ProfileRepository {
   Future<UserProfile> updateProfile({
     String? name,
     String? email,
-    String? address,
     List<SavedLocation>? savedLocations,
   });
 

@@ -22,7 +22,6 @@ class UserProfile {
     required this.name,
     required this.phone,
     required this.email,
-    required this.address,
     this.avatarUrl,
     this.language = 'English',
     this.notificationsEnabled = true,
@@ -33,7 +32,6 @@ class UserProfile {
   final String name;
   final String phone;
   final String email;
-  final String address;
   final String? avatarUrl;
   final String language;
   final bool notificationsEnabled;
@@ -43,7 +41,6 @@ class UserProfile {
     String? name,
     String? phone,
     String? email,
-    String? address,
     String? avatarUrl,
     String? language,
     bool? notificationsEnabled,
@@ -54,7 +51,6 @@ class UserProfile {
       name: name ?? this.name,
       phone: phone ?? this.phone,
       email: email ?? this.email,
-      address: address ?? this.address,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       language: language ?? this.language,
       notificationsEnabled:

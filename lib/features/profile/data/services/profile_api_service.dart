@@ -18,7 +18,6 @@ class ProfileApiService {
   Future<ProfileModel> updateProfile({
     String? name,
     String? email,
-    String? address,
     List<SavedLocation>? savedLocations,
   }) async {
     final data = await apiClient.put(
@@ -26,7 +25,6 @@ class ProfileApiService {
       body: {
         if (name != null) 'name': name,
         if (email != null) 'email': email,
-        if (address != null) 'address': address,
         if (savedLocations != null)
           'savedLocations': savedLocations
               .map((e) => {
@@ -38,6 +36,23 @@ class ProfileApiService {
                     }
                   })
               .toList(),
+      },
+    );
+    final map = data is Map<String, dynamic>
+        ? (data['data'] as Map<String, dynamic>? ?? data)
+        : <String, dynamic>{};
+    return ProfileModel.fromJson(map);
+  }
+
+  Future<ProfileModel> updatePreferences({
+    String? language,
+    bool? notificationsEnabled,
+  }) async {
+    final data = await apiClient.put(
+      '/profile',
+      body: {
+        if (language != null) 'language': language,
+        if (notificationsEnabled != null) 'notificationsEnabled': notificationsEnabled,
       },
     );
     final map = data is Map<String, dynamic>

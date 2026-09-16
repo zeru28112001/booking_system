@@ -34,7 +34,6 @@ class ProfileProvider extends ChangeNotifier {
   Future<bool> updateProfile({
     String? name,
     String? email,
-    String? address,
     List<SavedLocation>? savedLocations,
   }) async {
     _isSaving = true;
@@ -44,7 +43,6 @@ class ProfileProvider extends ChangeNotifier {
       _profile = await profileRepository.updateProfile(
         name: name,
         email: email,
-        address: address,
         savedLocations: savedLocations,
       );
       return true;

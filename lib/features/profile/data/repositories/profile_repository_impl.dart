@@ -1,3 +1,4 @@
+import '../../../../core/services/fcm_service.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../services/profile_api_service.dart';
@@ -18,13 +19,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<UserProfile> updateProfile({
     String? name,
     String? email,
-    String? address,
     List<SavedLocation>? savedLocations,
   }) async {
     return profileApiService.updateProfile(
       name: name,
       email: email,
-      address: address,
       savedLocations: savedLocations,
     );
   }
@@ -34,11 +33,23 @@ class ProfileRepositoryImpl implements ProfileRepository {
     String? language,
     bool? notificationsEnabled,
   }) async {
-    final current = await profileApiService.getProfile();
-    return profileApiService.updateProfile(
-      name: current.name,
-      email: current.email,
-      address: current.address,
+    // 1. Persist the preference to the backend
+    final updated = await profileApiService.updatePreferences(
+      language: language,
+      notificationsEnabled: notificationsEnabled,
     );
+
+    // 2. If the notification toggle changed, register or unregister the FCM token
+    if (notificationsEnabled != null) {
+      if (notificationsEnabled) {
+        // User turned notifications ON → re-register device token
+        await FCMService().registerCurrentToken();
+      } else {
+        // User turned notifications OFF → remove token so backend stops sending
+        await FCMService().unregisterTokenWithBackend();
+      }
+    }
+
+    return updated;
   }
 }

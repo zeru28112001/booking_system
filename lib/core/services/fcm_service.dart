@@ -88,10 +88,27 @@ class FCMService {
       final token = await _firebaseMessaging.getToken();
       if (token != null) {
         await _apiClient!.delete('/auth/fcm-token', body: {'fcmToken': token});
+        if (kDebugMode) print('🔕 [FCM] Token unregistered from backend');
       }
     } catch (e) {
       if (kDebugMode) {
         print('⚠️ [FCM Token Delete Failed]: $e');
+      }
+    }
+  }
+
+  /// Re-registers the current FCM token with the backend.
+  /// Call this when the user turns push notifications back ON.
+  Future<void> registerCurrentToken() async {
+    if (_apiClient == null) return;
+    try {
+      final token = await _firebaseMessaging.getToken();
+      if (token != null) {
+        await registerTokenWithBackend(token);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ [FCM Re-register Failed]: $e');
       }
     }
   }
