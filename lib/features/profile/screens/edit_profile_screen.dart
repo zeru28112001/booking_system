@@ -6,6 +6,8 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../providers/profile_provider.dart';
 
+import '../../../core/localization/app_language_provider.dart';
+
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -53,11 +55,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileProvider>().profile;
+    final langProvider = context.watch<AppLanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Edit Profile'),
+        title: Text(langProvider.translate('edit_profile')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppConstants.spaceMd),
@@ -93,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Consumer<ProfileProvider>(
                 builder: (context, provider, _) {
                   return AppButton(
-                    label: 'Save Changes',
+                    label: langProvider.translate('save_changes'),
                     icon: Icons.check_rounded,
                     isLoading: provider.isSaving,
                     onPressed: provider.isSaving ? null : _save,

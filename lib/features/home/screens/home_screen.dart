@@ -17,6 +17,8 @@ import '../widgets/saved_locations_bottom_sheet.dart';
 import '../../../core/providers/location_provider.dart';
 import '../providers/home_provider.dart';
 
+import '../../../core/localization/app_language_provider.dart';
+
 /// Phase 2 — Home & category discovery.
 /// UI only: all data arrives through [HomeProvider].
 class HomeScreen extends StatefulWidget {
@@ -46,12 +48,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openCategory(Category category) {
-    final name = Uri.encodeComponent(category.name);
+    final langProvider = context.read<AppLanguageProvider>();
+    final displayName = category.getLocalizedName(langProvider.languageCode);
+    final name = Uri.encodeComponent(displayName);
     context.push('/category/${category.id}?name=$name');
   }
 
   @override
   Widget build(BuildContext context) {
+    final langProvider = context.watch<AppLanguageProvider>();
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -61,13 +67,13 @@ class _HomeScreenState extends State<HomeScreen> {
           if (widget.onViewBookings != null)
             IconButton(
               icon: const Icon(Icons.event_note_outlined),
-              tooltip: 'My Bookings',
+              tooltip: langProvider.translate('my_bookings'),
               onPressed: widget.onViewBookings,
             ),
           if (widget.onLogout != null)
             IconButton(
               icon: const Icon(Icons.logout_rounded),
-              tooltip: 'Logout',
+              tooltip: langProvider.translate('logout'),
               onPressed: widget.onLogout,
             ),
         ],
@@ -78,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const HomeSearchBar(hint: 'Search services or providers'),
+              HomeSearchBar(hint: langProvider.translate('search_hint')),
               const SizedBox(height: AppConstants.spaceMd),
               Consumer<HomeProvider>(
                 builder: (context, home, _) {
@@ -104,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Categories',
+                  langProvider.translate('explore_categories'),
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),

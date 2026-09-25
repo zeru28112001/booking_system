@@ -10,6 +10,8 @@ import '../../auth/providers/auth_provider.dart';
 import '../../provider/widgets/gradient_avatar.dart';
 import '../providers/profile_provider.dart';
 
+import '../../../core/localization/app_language_provider.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -30,11 +32,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final langProvider = context.watch<AppLanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('My Profile'),
+        title: Text(langProvider.translate('my_profile')),
       ),
       body: Consumer<ProfileProvider>(
         builder: (context, provider, _) {
@@ -125,27 +128,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
                 _ProfileMenuItem(
                   icon: Icons.edit_outlined,
-                  title: 'Edit Profile',
-                  subtitle: 'Update your name & email',
+                  title: langProvider.translate('edit_profile'),
+                  subtitle: langProvider.translate('edit_profile_desc'),
                   onTap: () => context.push('/edit-profile'),
                 ),
                 _ProfileMenuItem(
                   icon: Icons.calendar_today_outlined,
-                  title: 'My Bookings',
-                  subtitle: 'View upcoming and past appointments',
+                  title: langProvider.translate('my_bookings'),
+                  subtitle: langProvider.translate('my_bookings_desc'),
                   onTap: () => context.push('/bookings'),
                 ),
                 _ProfileMenuItem(
                   icon: Icons.settings_outlined,
-                  title: 'Settings',
-                  subtitle: 'Language, notifications & app preferences',
+                  title: langProvider.translate('settings'),
+                  subtitle: langProvider.translate('settings_desc'),
                   onTap: () => context.push('/settings'),
                 ),
                 const SizedBox(height: AppConstants.spaceLg),
                 _ProfileMenuItem(
                   icon: Icons.logout_rounded,
-                  title: 'Logout',
-                  subtitle: 'Sign out of your account',
+                  title: langProvider.translate('logout'),
+                  subtitle: langProvider.translate('logout_desc'),
                   textColor: AppTheme.error,
                   iconColor: AppTheme.error,
                   onTap: () async {
@@ -154,18 +157,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final shouldLogout = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Logout?'),
-                        content: const Text('Are you sure you want to sign out?'),
+                        title: Text(langProvider.translate('confirm_logout_title')),
+                        content: Text(langProvider.translate('confirm_logout_msg')),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('Cancel'),
+                            child: Text(langProvider.translate('cancel')),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text(
-                              'Logout',
-                              style: TextStyle(color: AppTheme.error),
+                            child: Text(
+                              langProvider.translate('logout'),
+                              style: const TextStyle(color: AppTheme.error),
                             ),
                           ),
                         ],

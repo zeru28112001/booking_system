@@ -12,6 +12,8 @@ import '../domain/entities/booking.dart';
 import '../providers/booking_provider.dart';
 import '../widgets/booking_card.dart';
 
+import '../../../core/localization/app_language_provider.dart';
+
 /// Phase 4 — the customer's bookings, split into Pending / Upcoming / History.
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
@@ -32,20 +34,22 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final langProvider = context.watch<AppLanguageProvider>();
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: false,
-          title: const Text('My Bookings'),
-          bottom: const TabBar(
+          title: Text(langProvider.translate('my_bookings')),
+          bottom: TabBar(
             labelColor: AppTheme.primary,
             unselectedLabelColor: AppTheme.textSecondary,
             indicatorColor: AppTheme.primary,
             tabs: [
-              Tab(text: 'Pending'),
-              Tab(text: 'Upcoming'),
-              Tab(text: 'History'),
+              Tab(text: langProvider.translate('tab_pending')),
+              Tab(text: langProvider.translate('tab_confirmed')),
+              Tab(text: langProvider.translate('tab_completed')),
             ],
           ),
         ),
