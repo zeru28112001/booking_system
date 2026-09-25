@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import 'package:booking_system/features/auth/providers/auth_provider.dart';
@@ -29,6 +30,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
   }
 
   void _showEditProfileDialog(BuildContext context, ProviderProfile profile) {
+    final lang = context.read<AppLanguageProvider>();
     final nameController = TextEditingController(text: profile.shopName);
     final categoryController = TextEditingController(text: profile.categoryName);
     final phoneController = TextEditingController(text: profile.phone);
@@ -44,7 +46,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
       builder: (dialogCtx) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('Edit Shop Profile'),
+            title: Text(lang.translate('edit_shop_profile')),
             content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -72,24 +74,9 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
               const SizedBox(height: AppConstants.spaceSm),
               TextField(
                 controller: descController,
-                decoration: const InputDecoration(labelText: 'Business Description'),
+                decoration: InputDecoration(labelText: lang.translate('edit_description')),
                 maxLines: 3,
               ),
-              // const SizedBox(height: AppConstants.spaceSm),
-              // SwitchListTile(
-              //   contentPadding: EdgeInsets.zero,
-              //   title: const Text('Storefront / Multi-Staff Shop', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              //   subtitle: const Text('Customers visit your shop or select staff', style: TextStyle(fontSize: 12)),
-              //   value: isShop,
-              //   onChanged: (val) => setState(() => isShop = val),
-              // ),
-              // SwitchListTile(
-              //   contentPadding: EdgeInsets.zero,
-              //   title: const Text('Home / On-Site Service', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              //   subtitle: const Text('You travel to customer\'s location/home', style: TextStyle(fontSize: 12)),
-              //   value: isHomeService,
-              //   onChanged: (val) => setState(() => isHomeService = val),
-              // ),
               const SizedBox(height: AppConstants.spaceSm),
               OutlinedButton.icon(
                 onPressed: () {
@@ -112,7 +99,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                   );
                 },
                 icon: const Icon(Icons.map_outlined),
-                label: const Text('Pick Location on Map'),
+                label: Text(lang.translate('pick_location_map')),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                 ),
@@ -131,7 +118,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text('Cancel'),
+            child: Text(lang.translate('cancel')),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -155,7 +142,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
               Navigator.pop(dialogCtx);
               _confirmAndRequestProfileChange(context, updated, 'Profile details');
             },
-            child: const Text('Submit to Admin'),
+            child: Text(lang.translate('submit_to_admin')),
           ),
         ],
       );
@@ -167,6 +154,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     ProviderProfile updated,
     String changeDescription,
   ) async {
+    final lang = context.read<AppLanguageProvider>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
@@ -178,11 +166,11 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Cancel'),
+            child: Text(lang.translate('cancel')),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Submit Request'),
+            child: Text(lang.translate('submit_to_admin')),
           ),
         ],
       ),
@@ -206,26 +194,27 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     ProviderPortalProvider provider,
     bool newStatus,
   ) async {
-    final statusText = newStatus ? 'Available' : 'Busy / Closed';
+    final lang = context.read<AppLanguageProvider>();
+    final statusText = newStatus ? lang.translate('status_available') : lang.translate('status_busy');
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Confirm Status Change'),
+        title: Text(lang.translate('confirm_status_change')),
         content: Text(
-          'Are you sure you want to change your shop status to "$statusText"?\n\n'
-          '${newStatus ? "Customers will now be able to book services with your shop." : "When set to Busy / Closed, customers will not be able to make new bookings."}',
+          '${lang.translate('store_status')}: $statusText\n\n'
+          '${newStatus ? "Customers will now be able to book services with your shop." : "When set to Busy / Offline, customers will not be able to make new bookings."}',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Cancel'),
+            child: Text(lang.translate('cancel')),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: newStatus ? AppTheme.success : AppTheme.warning,
             ),
             onPressed: () => Navigator.pop(dialogCtx, true),
-            child: Text('Confirm ($statusText)'),
+            child: Text(lang.translate('save_changes')),
           ),
         ],
       ),
@@ -239,14 +228,15 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final langProvider = context.watch<AppLanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Provider Profile'),
+        title: Text(langProvider.translate('provider_profile_title')),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Edit Profile',
+            tooltip: langProvider.translate('edit_shop_profile'),
             onPressed: () {
               final p = context.read<ProviderPortalProvider>().profile;
               if (p != null) _showEditProfileDialog(context, p);
@@ -288,7 +278,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Change Request Pending Admin Approval',
+                                langProvider.translate('change_pending_admin'),
                                 style: theme.textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.amber.shade900,
@@ -296,7 +286,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Your requested service mode / profile updates are currently under review by an Administrator.',
+                                langProvider.translate('change_pending_desc'),
                                 style: theme.textTheme.bodySmall?.copyWith(color: Colors.amber.shade900),
                               ),
                             ],
@@ -350,7 +340,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                                     const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '${p.rating} (${p.reviewCount} reviews)',
+                                      '${p.rating} (${p.reviewCount} ${langProvider.translate("reviews")})',
                                       style: theme.textTheme.bodySmall,
                                     ),
                                   ],
@@ -398,11 +388,11 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                     side: const BorderSide(color: AppTheme.divider),
                   ),
                   child: SwitchListTile(
-                    title: const Text('Store Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text(langProvider.translate('store_status'), style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
                       provider.isAvailable
-                          ? 'Available for new customer bookings'
-                          : 'Currently set to Busy / Offline',
+                          ? langProvider.translate('status_available')
+                          : langProvider.translate('status_busy'),
                       style: theme.textTheme.bodySmall,
                     ),
                     secondary: Icon(
@@ -434,14 +424,14 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         child: Text(
-                          'Service Mode Options (Requires Admin Review)',
+                          langProvider.translate('service_mode_options'),
                           style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                       SwitchListTile(
                         dense: true,
-                        title: const Text('Storefront / Salon Shop (isShop)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        subtitle: const Text('In-shop bookings with staff options', style: TextStyle(fontSize: 11)),
+                        title: Text(langProvider.translate('storefront_shop_mode'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        subtitle: Text(langProvider.translate('storefront_shop_desc'), style: const TextStyle(fontSize: 11)),
                         secondary: const Icon(Icons.store_rounded, color: AppTheme.primary, size: 22),
                         value: p.isShop,
                         onChanged: (val) {
@@ -477,8 +467,8 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                       const Divider(height: 1),
                       SwitchListTile(
                         dense: true,
-                        title: const Text('Home / On-Site Service (isHomeService)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        subtitle: const Text('Travel to customer location/home', style: TextStyle(fontSize: 11)),
+                        title: Text(langProvider.translate('home_service_mode'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        subtitle: Text(langProvider.translate('home_service_desc'), style: const TextStyle(fontSize: 11)),
                         secondary: const Icon(Icons.home_repair_service_rounded, color: AppTheme.primary, size: 22),
                         value: p.isHomeService,
                         onChanged: (val) {
@@ -518,40 +508,101 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                 const SizedBox(height: AppConstants.spaceLg),
 
                 // Business Management Links
-                Text('Business Setup', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text(langProvider.translate('business_setup'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: AppConstants.spaceSm),
                 _buildActionTile(
                   context,
                   icon: Icons.access_time_filled_rounded,
-                  title: 'Weekly Working Hours',
-                  subtitle: 'Set open days, start & end times',
+                  title: langProvider.translate('weekly_schedule'),
+                  subtitle: langProvider.translate('schedule_desc'),
                   onTap: () => context.push('/provider-schedule'),
                 ),
                 _buildActionTile(
                   context,
                   icon: Icons.account_balance_wallet_outlined,
-                  title: 'Manage Payment Methods',
-                  subtitle: 'Configure accepted payment options (Cash, Mobile Wallet, Bank QR)',
+                  title: langProvider.translate('payment_methods'),
+                  subtitle: langProvider.translate('payment_desc'),
                   onTap: () => context.push('/provider-payment-methods'),
                 ),
                 _buildActionTile(
                   context,
                   icon: Icons.monetization_on_rounded,
-                  title: 'Earnings & Booking Insights',
-                  subtitle: 'View payout history and daily revenue',
+                  title: langProvider.translate('earnings_insights'),
+                  subtitle: langProvider.translate('earnings_desc'),
                   onTap: () => context.push('/provider-earnings'),
                 ),
                 _buildActionTile(
                   context,
                   icon: Icons.edit_note_rounded,
-                  title: 'Edit Business Description',
+                  title: langProvider.translate('edit_description'),
                   subtitle: p.description,
                   onTap: () => _showEditProfileDialog(context, p),
                 ),
                 const SizedBox(height: AppConstants.spaceLg),
 
+                // Preferences & Language Selection
+                Text(langProvider.translate('preferences'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: AppConstants.spaceSm),
+                Material(
+                  color: AppTheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                    side: const BorderSide(color: AppTheme.divider),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.language_outlined, color: AppTheme.primary),
+                    title: Text(langProvider.translate('language')),
+                    subtitle: Text(langProvider.isMyanmar ? 'Myanmar (မြန်မာ)' : 'English'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => SimpleDialog(
+                          title: Text(langProvider.translate('choose_language')),
+                          children: [
+                            SimpleDialogOption(
+                              onPressed: () {
+                                langProvider.setLanguage('en');
+                                Navigator.pop(ctx);
+                              },
+                              child: Row(
+                                children: [
+                                  const Text('🇬🇧 ', style: TextStyle(fontSize: 18)),
+                                  Text(langProvider.translate('english')),
+                                  if (!langProvider.isMyanmar) ...[
+                                    const Spacer(),
+                                    const Icon(Icons.check_circle, color: AppTheme.primary, size: 18),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            SimpleDialogOption(
+                              onPressed: () {
+                                langProvider.setLanguage('my');
+                                Navigator.pop(ctx);
+                              },
+                              child: Row(
+                                children: [
+                                  const Text('🇲🇲 ', style: TextStyle(fontSize: 18)),
+                                  Text(langProvider.translate('myanmar')),
+                                  if (langProvider.isMyanmar) ...[
+                                    const Spacer(),
+                                    const Icon(Icons.check_circle, color: AppTheme.primary, size: 18),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppConstants.spaceLg),
+
                 // Account & Session
-                Text('Account', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text(langProvider.translate('account'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: AppConstants.spaceSm),
                 Material(
                   color: AppTheme.surface,
@@ -561,7 +612,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                   ),
                   child: ListTile(
                     leading: const Icon(Icons.logout_rounded, color: AppTheme.error),
-                    title: const Text('Logout Provider Account', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
+                    title: Text(langProvider.translate('logout_provider'), style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
                     onTap: () async {
                       final auth = context.read<AuthProvider>();
                       final router = GoRouter.of(context);

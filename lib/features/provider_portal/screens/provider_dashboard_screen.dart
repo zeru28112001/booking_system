@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -33,11 +34,12 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final langProvider = context.watch<AppLanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Provider Dashboard'),
+        title: Text(langProvider.translate('provider_dashboard_title')),
         actions: [
           const NotificationBellIconButton(),
           Consumer<ProviderPortalProvider>(
@@ -67,7 +69,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        isAvailable ? 'Available' : 'Busy',
+                        isAvailable ? langProvider.translate('active_status') : langProvider.translate('status_busy'),
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: isAvailable ? AppTheme.success : AppTheme.warning,
@@ -156,7 +158,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                                   const Icon(Icons.star_rounded, size: 16, color: AppTheme.warning),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${profile?.rating ?? 4.9} (${profile?.reviewCount ?? 28} reviews)',
+                                    '${profile?.rating ?? 4.9} (${profile?.reviewCount ?? 28} ${langProvider.translate("reviews")})',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -177,7 +179,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       Expanded(
                         child: _buildStatCard(
                           context: context,
-                          title: 'Total Revenue',
+                          title: langProvider.translate('total_revenue'),
                           value: AppFormatters.currency(provider.totalRevenue),
                           icon: Icons.account_balance_wallet_outlined,
                           color: AppTheme.primary,
@@ -187,8 +189,8 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       Expanded(
                         child: _buildStatCard(
                           context: context,
-                          title: 'Completed',
-                          value: '${provider.completedCount} Bookings',
+                          title: langProvider.translate('tab_completed'),
+                          value: '${provider.completedCount} ${langProvider.translate("nav_bookings")}',
                           icon: Icons.check_circle_outline_rounded,
                           color: AppTheme.success,
                         ),
@@ -202,12 +204,12 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Pending Requests (${pending.length})',
+                        '${langProvider.translate("pending_approvals")} (${pending.length})',
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       if (pending.isNotEmpty)
                         Text(
-                          'Tap to manage',
+                          langProvider.translate('tap_to_manage'),
                           style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.primary),
                         ),
                     ],
@@ -215,10 +217,10 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                   const SizedBox(height: AppConstants.spaceSm),
 
                   if (pending.isEmpty)
-                    const AppEmptyState(
+                    AppEmptyState(
                       icon: Icons.done_all_rounded,
-                      title: 'No pending requests',
-                      subtitle: 'All customer booking requests have been processed.',
+                      title: langProvider.translate('no_pending_requests'),
+                      subtitle: langProvider.translate('all_pending_processed'),
                     )
                   else
                     ListView.separated(
@@ -294,7 +296,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                                     Expanded(
                                       child: OutlinedButton.icon(
                                         icon: const Icon(Icons.close_rounded, size: 18, color: AppTheme.error),
-                                        label: const Text('Reject', style: TextStyle(color: AppTheme.error)),
+                                        label: Text(langProvider.translate('reject'), style: const TextStyle(color: AppTheme.error)),
                                         onPressed: () async {
                                           final success = await provider.updateBookingStatus(booking.id, 'cancelled');
                                           if (context.mounted) {
@@ -312,7 +314,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                                     Expanded(
                                       child: ElevatedButton.icon(
                                         icon: const Icon(Icons.check_rounded, size: 18),
-                                        label: const Text('Accept'),
+                                        label: Text(langProvider.translate('accept')),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppTheme.success,
                                         ),

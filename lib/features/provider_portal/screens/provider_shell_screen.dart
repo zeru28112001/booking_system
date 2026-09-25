@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../providers/provider_portal_provider.dart';
 import 'provider_dashboard_screen.dart';
@@ -38,6 +39,8 @@ class _ProviderShellScreenState extends State<ProviderShellScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final langProvider = context.watch<AppLanguageProvider>();
+
     return Scaffold(
       body: KeyedSubtree(
         key: ValueKey(_currentIndex),
@@ -61,31 +64,31 @@ class _ProviderShellScreenState extends State<ProviderShellScreen> {
               _currentIndex = index;
             });
           },
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard_rounded),
-              label: 'Dashboard',
+              icon: const Icon(Icons.dashboard_outlined),
+              selectedIcon: const Icon(Icons.dashboard_rounded),
+              label: langProvider.translate('provider_nav_dashboard'),
             ),
             NavigationDestination(
-              icon: Icon(Icons.calendar_today_outlined),
-              selectedIcon: Icon(Icons.calendar_today_rounded),
-              label: 'Bookings',
+              icon: const Icon(Icons.calendar_today_outlined),
+              selectedIcon: const Icon(Icons.calendar_today_rounded),
+              label: langProvider.translate('provider_nav_bookings'),
             ),
             NavigationDestination(
-              icon: Icon(Icons.design_services_outlined),
-              selectedIcon: Icon(Icons.design_services_rounded),
-              label: 'Services',
+              icon: const Icon(Icons.design_services_outlined),
+              selectedIcon: const Icon(Icons.design_services_rounded),
+              label: langProvider.translate('provider_nav_services'),
             ),
             NavigationDestination(
-              icon: Icon(Icons.people_outline_rounded),
-              selectedIcon: Icon(Icons.people_rounded),
-              label: 'Staff',
+              icon: const Icon(Icons.people_outline_rounded),
+              selectedIcon: const Icon(Icons.people_rounded),
+              label: langProvider.translate('provider_nav_staff'),
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
+              icon: const Icon(Icons.person_outline_rounded),
+              selectedIcon: const Icon(Icons.person_rounded),
+              label: langProvider.translate('provider_nav_profile'),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
@@ -22,15 +23,16 @@ class ProviderStaffScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final langProvider = context.watch<AppLanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Manage Staff'),
+        title: Text(langProvider.translate('provider_staff_title')),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_alt_outlined),
-            tooltip: 'Add Staff',
+            tooltip: langProvider.translate('add_staff'),
             onPressed: () => _openSheet(context),
           ),
         ],
@@ -48,7 +50,7 @@ class ProviderStaffScreen extends StatelessWidget {
               icon: Icons.people_outline_rounded,
               title: 'No staff members added',
               subtitle: 'Add staff members to allow customers to choose specific specialists.',
-              actionLabel: 'Add Staff Member',
+              actionLabel: langProvider.translate('add_staff'),
               onAction: () => _openSheet(context),
             );
           }
@@ -94,7 +96,9 @@ class ProviderStaffScreen extends StatelessWidget {
                                   ),
                                 ),
                                 child: Text(
-                                  member.isActive ? 'Active ' : 'Day Off or Break',
+                                  member.isActive
+                                      ? langProvider.translate('active_status')
+                                      : langProvider.translate('day_off_break'),
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
@@ -149,7 +153,7 @@ class ProviderStaffScreen extends StatelessWidget {
         heroTag: null,
         onPressed: () => _openSheet(context),
         icon: const Icon(Icons.person_add_rounded),
-        label: const Text('Add Staff'),
+        label: Text(langProvider.translate('add_staff')),
       ),
     );
   }

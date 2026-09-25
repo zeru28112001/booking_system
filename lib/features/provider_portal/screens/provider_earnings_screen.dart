@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -14,6 +15,7 @@ class ProviderEarningsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final provider = context.watch<ProviderPortalProvider>();
+    final langProvider = context.watch<AppLanguageProvider>();
     final bookings = provider.bookings;
     final List<Booking> revenueList = bookings
         .where((b) => b.status == 'completed' || b.status == 'accepted' || b.status == 'in_progress')
@@ -22,7 +24,7 @@ class ProviderEarningsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Earnings & Payments'),
+        title: Text(langProvider.translate('earnings_title')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppConstants.spaceMd),
@@ -42,9 +44,9 @@ class ProviderEarningsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Total Revenue',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  Text(
+                    langProvider.translate('total_revenue'),
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -57,9 +59,9 @@ class ProviderEarningsScreen extends StatelessWidget {
                   const SizedBox(height: AppConstants.spaceMd),
                   Row(
                     children: [
-                      _buildHeaderStat('Completed', '${provider.completedCount}'),
+                      _buildHeaderStat(langProvider.translate('tab_completed'), '${provider.completedCount}'),
                       const SizedBox(width: AppConstants.spaceLg),
-                      _buildHeaderStat('Active', '${provider.activeBookings.length}'),
+                      _buildHeaderStat(langProvider.translate('tab_in_progress'), '${provider.activeBookings.length}'),
                     ],
                   ),
                 ],
@@ -68,7 +70,7 @@ class ProviderEarningsScreen extends StatelessWidget {
             const SizedBox(height: AppConstants.spaceLg),
 
             Text(
-              'Payment History',
+              langProvider.translate('payment_history'),
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppConstants.spaceSm),

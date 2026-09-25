@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -20,12 +21,19 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final _tabs = ['All', 'Pending', 'Accepted', 'In Progress', 'Completed', 'Cancelled'];
+  static const _tabKeys = [
+    'tab_all',
+    'tab_pending',
+    'tab_accepted',
+    'tab_in_progress',
+    'tab_completed',
+    'tab_cancelled'
+  ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: _tabKeys.length, vsync: this);
   }
 
   @override
@@ -36,14 +44,16 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final langProvider = context.watch<AppLanguageProvider>();
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Provider Bookings'),
+        title: Text(langProvider.translate('provider_bookings_title')),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          tabs: _tabs.map((t) => Tab(text: t)).toList(),
+          tabs: _tabKeys.map((k) => Tab(text: langProvider.translate(k))).toList(),
         ),
       ),
       body: Consumer<ProviderPortalProvider>(
@@ -57,12 +67,12 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
           return TabBarView(
             controller: _tabController,
             children: [
-              _buildBookingList(context, provider, all),
-              _buildBookingList(context, provider, all.where((b) => b.status == 'pending').toList()),
-              _buildBookingList(context, provider, all.where((b) => b.status == 'accepted').toList()),
-              _buildBookingList(context, provider, all.where((b) => b.status == 'in_progress').toList()),
-              _buildBookingList(context, provider, all.where((b) => b.status == 'completed').toList()),
-              _buildBookingList(context, provider, all.where((b) => b.status == 'cancelled').toList()),
+              _buildBookingList(context, provider, all, langProvider),
+              _buildBookingList(context, provider, all.where((b) => b.status == 'pending').toList(), langProvider),
+              _buildBookingList(context, provider, all.where((b) => b.status == 'accepted').toList(), langProvider),
+              _buildBookingList(context, provider, all.where((b) => b.status == 'in_progress').toList(), langProvider),
+              _buildBookingList(context, provider, all.where((b) => b.status == 'completed').toList(), langProvider),
+              _buildBookingList(context, provider, all.where((b) => b.status == 'cancelled').toList(), langProvider),
             ],
           );
         },
@@ -74,6 +84,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
     BuildContext context,
     ProviderPortalProvider provider,
     List<Booking> list,
+    AppLanguageProvider langProvider,
   ) {
     if (list.isEmpty) {
       return RefreshIndicator(
@@ -83,9 +94,9 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
           child: Container(
             height: MediaQuery.of(context).size.height * 0.6,
             alignment: Alignment.center,
-            child: const AppEmptyState(
+            child: AppEmptyState(
               icon: Icons.event_busy_rounded,
-              title: 'No bookings found',
+              title: langProvider.translate('no_bookings_found'),
               subtitle: 'There are no bookings matching this status.',
             ),
           ),
@@ -129,7 +140,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                     booking.serviceName,
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  _buildStatusBadge(status),
+                  _buildStatusBadge(status, langProvider),
                 ],
               ),
               const SizedBox(height: AppConstants.spaceSm),
@@ -181,7 +192,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => provider.updateBookingStatus(booking.id, 'cancelled'),
-                          child: const Text('Reject', style: TextStyle(color: AppTheme.error)),
+                          child: Text(langProvider.translate('reject'), style: const TextStyle(color: AppTheme.error)),
                         ),
                       ),
                       const SizedBox(width: AppConstants.spaceMd),
@@ -189,7 +200,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
                           onPressed: () => provider.updateBookingStatus(booking.id, 'accepted'),
-                          child: const Text('Accept'),
+                          child: Text(langProvider.translate('accept')),
                         ),
                       ),
                     ],
@@ -203,7 +214,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => provider.updateBookingStatus(booking.id, 'no_show'),
-                          child: const Text('No-Show', style: TextStyle(color: AppTheme.error)),
+                          child: Text(langProvider.translate('tab_no_show'), style: const TextStyle(color: AppTheme.error)),
                         ),
                       ),
                       const SizedBox(width: AppConstants.spaceSm),
@@ -211,7 +222,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                         flex: 2,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                          label: const Text('In Progress'),
+                          label: Text(langProvider.translate('tab_in_progress')),
                           onPressed: () => provider.updateBookingStatus(booking.id, 'in_progress'),
                         ),
                       ),
@@ -226,7 +237,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => provider.updateBookingStatus(booking.id, 'no_show'),
-                          child: const Text('No-Show', style: TextStyle(color: AppTheme.error)),
+                          child: Text(langProvider.translate('tab_no_show'), style: const TextStyle(color: AppTheme.error)),
                         ),
                       ),
                       const SizedBox(width: AppConstants.spaceSm),
@@ -234,7 +245,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                         flex: 2,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                          label: const Text('Completed'),
+                          label: Text(langProvider.translate('tab_completed')),
                           style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
                           onPressed: () => provider.updateBookingStatus(booking.id, 'completed'),
                         ),
@@ -253,7 +264,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
   );
 }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(String status, AppLanguageProvider langProvider) {
     Color bg;
     Color fg;
     String label = status.toUpperCase();
@@ -262,32 +273,32 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
       case 'pending':
         bg = AppTheme.warning.withAlpha(30);
         fg = AppTheme.warning;
-        label = 'Pending';
+        label = langProvider.translate('tab_pending');
         break;
       case 'accepted':
         bg = AppTheme.info.withAlpha(30);
         fg = AppTheme.info;
-        label = 'Accepted';
+        label = langProvider.translate('tab_accepted');
         break;
       case 'in_progress':
         bg = AppTheme.primary.withAlpha(30);
         fg = AppTheme.primary;
-        label = 'In Progress';
+        label = langProvider.translate('tab_in_progress');
         break;
       case 'completed':
         bg = AppTheme.success.withAlpha(30);
         fg = AppTheme.success;
-        label = 'Completed';
+        label = langProvider.translate('tab_completed');
         break;
       case 'no_show':
         bg = Colors.purple.withAlpha(30);
         fg = Colors.purple;
-        label = 'No-Show';
+        label = langProvider.translate('tab_no_show');
         break;
       case 'cancelled':
         bg = AppTheme.error.withAlpha(30);
         fg = AppTheme.error;
-        label = 'Cancelled';
+        label = langProvider.translate('tab_cancelled');
         break;
       default:
         bg = Colors.grey.withAlpha(30);

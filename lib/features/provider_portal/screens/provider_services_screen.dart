@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -23,15 +24,16 @@ class ProviderServicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final langProvider = context.watch<AppLanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Manage Services'),
+        title: Text(langProvider.translate('provider_services_title')),
         actions: [
           IconButton(
             icon: const Icon(Icons.category_outlined),
-            tooltip: 'Manage Service Groups',
+            tooltip: langProvider.translate('service_groups'),
             onPressed: () {
               Navigator.push(
                 context,
@@ -41,7 +43,7 @@ class ProviderServicesScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.add_circle_outline_rounded),
-            tooltip: 'Add Service',
+            tooltip: langProvider.translate('add_service'),
             onPressed: () => _openSheet(context),
           ),
         ],
@@ -59,7 +61,7 @@ class ProviderServicesScreen extends StatelessWidget {
               icon: Icons.design_services_outlined,
               title: 'No services added',
               subtitle: 'Add your shop services and variants to start accepting bookings.',
-              actionLabel: 'Add First Service',
+              actionLabel: langProvider.translate('add_service'),
               onAction: () => _openSheet(context),
             );
           }
@@ -139,7 +141,7 @@ class ProviderServicesScreen extends StatelessWidget {
         heroTag: null,
         onPressed: () => _openSheet(context),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add Service'),
+        label: Text(langProvider.translate('add_service')),
       ),
     );
   }

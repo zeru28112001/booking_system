@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_language_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
@@ -69,6 +70,7 @@ class _ProviderScheduleScreenState extends State<ProviderScheduleScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final provider = context.watch<ProviderPortalProvider>();
+    final langProvider = context.watch<AppLanguageProvider>();
 
     if (provider.isLoading && !_initialized) {
       return const Scaffold(body: AppLoadingIndicator());
@@ -77,7 +79,7 @@ class _ProviderScheduleScreenState extends State<ProviderScheduleScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Weekly Working Hours'),
+        title: Text(langProvider.translate('weekly_schedule_title')),
       ),
       body: _days.isEmpty
           ? const Center(child: Text('No schedule configured'))
@@ -87,7 +89,7 @@ class _ProviderScheduleScreenState extends State<ProviderScheduleScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Set your business open days and working hours for each day of the week.',
+                    langProvider.translate('schedule_hint'),
                     style: theme.textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
                   ),
                   const SizedBox(height: AppConstants.spaceLg),
@@ -160,9 +162,9 @@ class _ProviderScheduleScreenState extends State<ProviderScheduleScreen> {
                                   ),
                                 ),
                               ] else ...[
-                                const Text(
-                                  'OFF DAY',
-                                  style: TextStyle(
+                                Text(
+                                  langProvider.translate('off_day'),
+                                  style: const TextStyle(
                                     color: AppTheme.error,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
@@ -177,7 +179,7 @@ class _ProviderScheduleScreenState extends State<ProviderScheduleScreen> {
                   ),
                   const SizedBox(height: AppConstants.spaceXl),
                   AppButton(
-                    label: 'Save Weekly Schedule',
+                    label: langProvider.translate('save_schedule'),
                     icon: Icons.check_rounded,
                     isLoading: provider.isSaving,
                     onPressed: provider.isSaving ? null : _save,

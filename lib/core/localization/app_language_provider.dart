@@ -45,12 +45,19 @@ class AppLanguageProvider extends ChangeNotifier {
   }
 
   static const Map<String, String> _englishTranslations = {
-    // Navigation Shell
+    // Customer Navigation Shell
     'nav_home': 'Home',
     'nav_bookings': 'Bookings',
     'nav_profile': 'Profile',
 
-    // Profile Screen
+    // Provider Navigation Shell
+    'provider_nav_dashboard': 'Dashboard',
+    'provider_nav_bookings': 'Bookings',
+    'provider_nav_services': 'Services',
+    'provider_nav_staff': 'Staff',
+    'provider_nav_profile': 'Shop Profile',
+
+    // Customer Profile Screen
     'my_profile': 'My Profile',
     'edit_profile': 'Edit Profile',
     'edit_profile_desc': 'Update your name & email',
@@ -107,25 +114,91 @@ class AppLanguageProvider extends ChangeNotifier {
     'view_details': 'View Details',
     'book_again': 'Book Again',
 
-    // Provider Detail Screen
+    // Provider Detail & Portal Screen
     'book_now': 'Book Now',
     'services': 'Services',
     'reviews': 'Reviews',
     'about': 'About',
     'address': 'Address',
     'working_hours': 'Working Hours',
-    'staff': 'Select Staff',
+    'staff': 'Staff',
     'duration': 'Duration',
     'price': 'Price',
+
+    // Provider Portal Specific
+    'provider_profile_title': 'Provider Profile',
+    'edit_shop_profile': 'Edit Shop Profile',
+    'store_status': 'Store Status',
+    'status_available': 'Available for new customer bookings',
+    'status_busy': 'Currently set to Busy / Offline',
+    'business_setup': 'Business Setup',
+    'weekly_schedule': 'Weekly Working Hours',
+    'schedule_desc': 'Set open days, start & end times',
+    'payment_methods': 'Manage Payment Methods',
+    'payment_desc': 'Configure accepted payment options (Cash, Mobile Wallet, Bank QR)',
+    'earnings_insights': 'Earnings & Booking Insights',
+    'earnings_desc': 'View payout history and daily revenue',
+    'edit_description': 'Edit Business Description',
+    'account': 'Account',
+    'logout_provider': 'Logout Provider Account',
+    'dashboard_overview': 'Dashboard Overview',
+    'todays_bookings': "Today's Appointments",
+    'total_revenue': 'Total Earnings',
+    'pending_approvals': 'Pending Requests',
+    'manage_services': 'Manage Services',
+    'manage_staff': 'Manage Staff',
+
+    // Additional Provider Keys
+    'provider_dashboard_title': 'Provider Dashboard',
+    'provider_bookings_title': 'Provider Bookings',
+    'provider_services_title': 'Manage Services',
+    'provider_staff_title': 'Manage Staff',
+    'weekly_schedule_title': 'Weekly Working Hours',
+    'payment_methods_title': 'Payment Methods',
+    'earnings_title': 'Earnings & Payments',
+    'payment_history': 'Payment History',
+    'accept': 'Accept',
+    'reject': 'Reject',
+    'tab_accepted': 'Accepted',
+    'tab_in_progress': 'In Progress',
+    'tab_no_show': 'No-Show',
+    'add_service': 'Add Service',
+    'add_staff': 'Add Staff',
+    'service_groups': 'Manage Service Groups',
+    'service_mode_options': 'Service Mode Options (Requires Admin Review)',
+    'storefront_shop_mode': 'Storefront / Salon Shop (isShop)',
+    'storefront_shop_desc': 'In-shop bookings with staff options',
+    'home_service_mode': 'Home / On-Site Service (isHomeService)',
+    'home_service_desc': 'Travel to customer location/home',
+    'change_pending_admin': 'Change Request Pending Admin Approval',
+    'change_pending_desc': 'Your requested service mode / profile updates are currently under review by an Administrator.',
+    'pick_location_map': 'Pick Location on Map',
+    'submit_to_admin': 'Submit to Admin',
+    'confirm_status_change': 'Confirm Status Change',
+    'save_schedule': 'Save Weekly Schedule',
+    'schedule_hint': 'Set your business open days and working hours for each day of the week.',
+    'off_day': 'OFF DAY',
+    'active_status': 'Active',
+    'day_off_break': 'Day Off or Break',
+    'no_pending_requests': 'No pending requests',
+    'all_pending_processed': 'All customer booking requests have been processed.',
+    'tap_to_manage': 'Tap to manage',
   };
 
   static const Map<String, String> _myanmarTranslations = {
-    // Navigation Shell
+    // Customer Navigation Shell
     'nav_home': 'ပင်မ',
     'nav_bookings': 'ဘိုကင်များ',
     'nav_profile': 'ပရိုဖိုင်',
 
-    // Profile Screen
+    // Provider Navigation Shell
+    'provider_nav_dashboard': 'ဒက်ရှ်ဘုတ်',
+    'provider_nav_bookings': 'ရက်ချိန်းများ',
+    'provider_nav_services': 'ဝန်ဆောင်မှုများ',
+    'provider_nav_staff': 'ဝန်ထမ်းများ',
+    'provider_nav_profile': 'ဆိုင် ပရိုဖိုင်',
+
+    // Customer Profile Screen
     'my_profile': 'ကျွန်ုပ်၏ ပရိုဖိုင်',
     'edit_profile': 'ပရိုဖိုင် ပြင်ဆင်ရန်',
     'edit_profile_desc': 'အမည်နှင့် အီးမေးလ် ပြင်ဆင်ရန်',
@@ -182,15 +255,74 @@ class AppLanguageProvider extends ChangeNotifier {
     'view_details': 'အသေးစိတ်ကြည့်ရန်',
     'book_again': 'ထပ်မံ ဘိုကင်တင်မည်',
 
-    // Provider Detail Screen
+    // Provider Detail & Portal Screen
     'book_now': 'ဘိုကင် တင်မည်',
     'services': 'ဝန်ဆောင်မှုများ',
     'reviews': 'သုံးသပ်ချက်များ',
     'about': 'အချက်အလက်များ',
     'address': 'လိပ်စာ',
     'working_hours': 'ဆိုင်ဖွင့်ချိန်များ',
-    'staff': 'ဝန်ထမ်း ရွေးချယ်ရန်',
+    'staff': 'ဝန်ထမ်းများ',
     'duration': 'ကြာမြင့်ချိန်',
     'price': 'ကျသင့်ငွေ',
+
+    // Provider Portal Specific
+    'provider_profile_title': 'ဆိုင် ပရိုဖိုင်',
+    'edit_shop_profile': 'ဆိုင် ပရိုဖိုင် ပြင်ဆင်ရန်',
+    'store_status': 'ဆိုင် ဖွင့်/ပိတ် အခြေအနေ',
+    'status_available': 'ဘိုကင် အသစ်များ လက်ခံရန် အဆင်သင့်ရှိသည်',
+    'status_busy': 'လက်ရှိ အလုပ်ရှုပ် / ပိတ်ထားသည်',
+    'business_setup': 'ဆိုင် ပြင်ဆင်ချက်များ',
+    'weekly_schedule': 'ဆိုင်ဖွင့်ချိန်များ ပြင်ဆင်ရန်',
+    'schedule_desc': 'ဖွင့်ရက်များ၊ စတင်ချိန်နှင့် ပိတ်ချိန်များ သတ်မှတ်ရန်',
+    'payment_methods': 'ငွေလက်ခံသည့် နည်းလမ်းများ',
+    'payment_desc': 'လက်ခံသည့် ငွေပေးချေမှု နည်းလမ်းများ (KPay, Wave, Cash, QR)',
+    'earnings_insights': 'ဝင်ငွေနှင့် ဘိုကင် အချက်အလက်များ',
+    'earnings_desc': 'နေ့စဉ် ဝင်ငွေနှင့် ဘိုကင် စာရင်းများ ကြည့်ရန်',
+    'edit_description': 'ဆိုင်အကြောင်း ပြင်ဆင်ရန်',
+    'account': 'အကောင့်',
+    'logout_provider': 'ဆိုင် အကောင့်မှ ထွက်မည်',
+    'dashboard_overview': 'ဒက်ရှ်ဘုတ် အနှစ်ချုပ်',
+    'todays_bookings': 'ယနေ့ ရက်ချိန်းများ',
+    'total_revenue': 'စုစုပေါင်း ဝင်ငွေ',
+    'pending_approvals': 'စောင့်ဆိုင်းဆဲ တောင်းဆိုမှုများ',
+    'manage_services': 'ဝန်ဆောင်မှုများ စီမံရန်',
+    'manage_staff': 'ဝန်ထမ်းများ စီမံရန်',
+
+    // Additional Provider Keys (Myanmar)
+    'provider_dashboard_title': 'ဝန်ဆောင်မှုပေးသူ ဒက်ရှ်ဘုတ်',
+    'provider_bookings_title': 'ရက်ချိန်းများ စီမံရန်',
+    'provider_services_title': 'ဝန်ဆောင်မှုများ စီမံရန်',
+    'provider_staff_title': 'ဝန်ထမ်းများ စီမံရန်',
+    'weekly_schedule_title': 'ဆိုင်ဖွင့်ချိန်များ',
+    'payment_methods_title': 'ငွေလက်ခံသည့် နည်းလမ်းများ',
+    'earnings_title': 'ဝင်ငွေနှင့် ငွေလက်ခံမှုများ',
+    'payment_history': 'ငွေလက်ခံမှု မှတ်တမ်း',
+    'accept': 'လက်ခံမည်',
+    'reject': 'ငြင်းပယ်မည်',
+    'tab_accepted': 'လက်ခံပြီး',
+    'tab_in_progress': 'ဆောင်ရွက်ဆဲ',
+    'tab_no_show': 'မလာရောက်ခဲ့ပါ',
+    'add_service': 'ဝန်ဆောင်မှု သစ်ထည့်ရန်',
+    'add_staff': 'ဝန်ထမ်း သစ်ထည့်ရန်',
+    'service_groups': 'ဝန်ဆောင်မှု အုပ်စုများ စီမံရန်',
+    'service_mode_options': 'ဝန်ဆောင်မှု အမျိုးအစားများ (အက်ဒမင် စစ်ဆေးရန် လိုအပ်)',
+    'storefront_shop_mode': 'ဆိုင်သို့ လာရောက်သည့် ဝန်ဆောင်မှု',
+    'storefront_shop_desc': 'ဆိုင်တွင်း ဘိုကင်နှင့် ဝန်ထမ်း ရွေးချယ်နိုင်မှု',
+    'home_service_mode': 'အိမ်တိုင်ရာရောက် ဝန်ဆောင်မှု',
+    'home_service_desc': 'ဝယ်ယူသူထံ သွားရောက် ဝန်ဆောင်မှုပေးခြင်း',
+    'change_pending_admin': 'အက်ဒမင် ခွင့်ပြုချက် စောင့်ဆိုင်းနေဆဲ',
+    'change_pending_desc': 'သင်၏ ပြင်ဆင်ချက်များကို အက်ဒမင်မှ စစ်ဆေးနေပါသည်။',
+    'pick_location_map': 'မြေပုံပေါ်တွင် လိပ်စာ ရွေးမည်',
+    'submit_to_admin': 'အက်ဒမင်ထံ တင်ပြမည်',
+    'confirm_status_change': 'အခြေအနေ ပြောင်းလဲရန် အတည်ပြုပါ',
+    'save_schedule': 'ဆိုင်ဖွင့်ချိန် ပြင်ဆင်ချက် သိမ်းမည်',
+    'schedule_hint': 'တစ်ပတ်တာ ဆိုင်ဖွင့်ရက်များနှင့် ဖွင့်ချိန်၊ ပိတ်ချိန်များ သတ်မှတ်ပါ။',
+    'off_day': 'ပိတ်ရက်',
+    'active_status': 'အလုပ်လုပ်နေသည်',
+    'day_off_break': 'နားရက် / အနားယူချိန်',
+    'no_pending_requests': 'စောင့်ဆိုင်းဆဲ တောင်းဆိုမှု မရှိပါ',
+    'all_pending_processed': 'ဘိုကင် တောင်းဆိုမှု အားလုံးကို ဆောင်ရွက်ပြီးပါပြီ။',
+    'tap_to_manage': 'စီမံရန် နှိပ်ပါ',
   };
 }
