@@ -203,7 +203,7 @@ class SettingsScreen extends StatelessWidget {
                     leading: const Icon(Icons.info_outline_rounded,
                         color: AppTheme.primary),
                     title: Text(langProvider.translate('app_version')),
-                    subtitle: const Text('v1.1.1 (Build 2)'),
+                    subtitle: const Text('v1.0.1 (Build 3)'),
                   ),
                 ],
               ),
