@@ -6,6 +6,7 @@ class ProviderStaffModel extends ProviderStaff {
     required super.name,
     required super.phone,
     required super.specialties,
+    super.servicePrices = const {},
     required super.isActive,
     required super.avatarUrl,
     super.offDays,
@@ -14,6 +15,17 @@ class ProviderStaffModel extends ProviderStaff {
   });
 
   factory ProviderStaffModel.fromJson(Map<String, dynamic> json) {
+    Map<String, int> parsedPrices = {};
+    if (json['servicePrices'] is Map) {
+      (json['servicePrices'] as Map).forEach((k, v) {
+        if (v is num) parsedPrices[k.toString()] = v.toInt();
+      });
+    } else if (json['service_prices'] is Map) {
+      (json['service_prices'] as Map).forEach((k, v) {
+        if (v is num) parsedPrices[k.toString()] = v.toInt();
+      });
+    }
+
     return ProviderStaffModel(
       id: json['id'] as String? ?? json['_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
@@ -22,6 +34,7 @@ class ProviderStaffModel extends ProviderStaff {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      servicePrices: parsedPrices,
       isActive: json['isAvailableToday'] as bool? ??
           json['is_available_today'] as bool? ??
           json['isActive'] as bool? ??
@@ -40,6 +53,8 @@ class ProviderStaffModel extends ProviderStaff {
       'name': name,
       'phone': phone,
       'specialties': specialties,
+      'servicePrices': servicePrices,
+      'service_prices': servicePrices,
       'is_active': isActive,
       'isActive': isActive,
       'isAvailableToday': isActive,
@@ -56,6 +71,7 @@ class ProviderStaffModel extends ProviderStaff {
     String? name,
     String? phone,
     List<String>? specialties,
+    Map<String, int>? servicePrices,
     bool? isActive,
     String? avatarUrl,
     List<String>? offDays,
@@ -67,6 +83,7 @@ class ProviderStaffModel extends ProviderStaff {
       name: name ?? this.name,
       phone: phone ?? this.phone,
       specialties: specialties ?? this.specialties,
+      servicePrices: servicePrices ?? this.servicePrices,
       isActive: isActive ?? this.isActive,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       offDays: offDays ?? this.offDays,

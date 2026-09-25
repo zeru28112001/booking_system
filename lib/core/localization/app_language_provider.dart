@@ -86,8 +86,7 @@ class AppLanguageProvider extends ChangeNotifier {
     'cancel': 'Cancel',
     'turn_off': 'Turn Off',
     'confirm_turn_off_title': 'Turn Off Push Notifications?',
-    'confirm_turn_off_msg':
-        'If you turn off push notifications, you may miss critical booking updates, provider arrival alerts, and status reminders.',
+    'confirm_turn_off_msg': 'If you turn off push notifications, you may miss critical booking updates, provider arrival alerts, and status reminders.',
 
     // Home Screen
     'home_title': 'Find Services Near You',
@@ -135,7 +134,8 @@ class AppLanguageProvider extends ChangeNotifier {
     'weekly_schedule': 'Weekly Working Hours',
     'schedule_desc': 'Set open days, start & end times',
     'payment_methods': 'Manage Payment Methods',
-    'payment_desc': 'Configure accepted payment options (Cash, Mobile Wallet, Bank QR)',
+    'payment_desc':
+        'Configure accepted payment options (Cash, Mobile Wallet, Bank QR)',
     'earnings_insights': 'Earnings & Booking Insights',
     'earnings_desc': 'View payout history and daily revenue',
     'edit_description': 'Edit Business Description',
@@ -166,9 +166,9 @@ class AppLanguageProvider extends ChangeNotifier {
     'add_staff': 'Add Staff',
     'service_groups': 'Manage Service Groups',
     'service_mode_options': 'Service Mode Options (Requires Admin Review)',
-    'storefront_shop_mode': 'Storefront / Salon Shop (isShop)',
+    'storefront_shop_mode': 'Storefront / Salon Shop',
     'storefront_shop_desc': 'In-shop bookings with staff options',
-    'home_service_mode': 'Home / On-Site Service (isHomeService)',
+    'home_service_mode': 'Home / On-Site Service',
     'home_service_desc': 'Travel to customer location/home',
     'change_pending_admin': 'Change Request Pending Admin Approval',
     'change_pending_desc': 'Your requested service mode / profile updates are currently under review by an Administrator.',
@@ -181,7 +181,8 @@ class AppLanguageProvider extends ChangeNotifier {
     'active_status': 'Active',
     'day_off_break': 'Day Off or Break',
     'no_pending_requests': 'No pending requests',
-    'all_pending_processed': 'All customer booking requests have been processed.',
+    'all_pending_processed':
+        'All customer booking requests have been processed.',
     'tap_to_manage': 'Tap to manage',
   };
 
@@ -215,7 +216,8 @@ class AppLanguageProvider extends ChangeNotifier {
     // Settings Screen
     'preferences': 'စိတ်ကြိုက်ပြင်ဆင်ချက်များ',
     'push_notifications': 'အကြောင်းကြားချက်များ',
-    'push_notif_desc': 'ကြိုတင်ဘိုကင် အသိပေးချက်များနှင့် သတိပေးချက်များ ရယူရန်',
+    'push_notif_desc':
+        'ကြိုတင်ဘိုကင် အသိပေးချက်များနှင့် သတိပေးချက်များ ရယူရန်',
     'language': 'ဘာသာစကား',
     'about_legal': 'အချက်အလက်များနှင့် စည်းကမ်းချက်များ',
     'privacy_policy': 'ကိုယ်ရေးအချက်အလက် မူဝါဒ',
@@ -227,8 +229,7 @@ class AppLanguageProvider extends ChangeNotifier {
     'cancel': 'မလုပ်တော့ပါ',
     'turn_off': 'ပိတ်မည်',
     'confirm_turn_off_title': 'အကြောင်းကြားချက်များ ပိတ်မည်လား?',
-    'confirm_turn_off_msg':
-        'အကြောင်းကြားချက်များ ပိတ်ထားပါက ကြိုတင်ဘိုကင် အခြေအနေများနှင့် သတိပေးချက်များ လွတ်သွားနိုင်ပါသည်။',
+    'confirm_turn_off_msg': 'အကြောင်းကြားချက်များ ပိတ်ထားပါက ကြိုတင်ဘိုကင် အခြေအနေများနှင့် သတိပေးချက်များ လွတ်သွားနိုင်ပါသည်။',
 
     // Home Screen
     'home_title': 'အနီးရှိ ဝန်ဆောင်မှုများ ရှာဖွေပါ',
@@ -276,7 +277,8 @@ class AppLanguageProvider extends ChangeNotifier {
     'weekly_schedule': 'ဆိုင်ဖွင့်ချိန်များ ပြင်ဆင်ရန်',
     'schedule_desc': 'ဖွင့်ရက်များ၊ စတင်ချိန်နှင့် ပိတ်ချိန်များ သတ်မှတ်ရန်',
     'payment_methods': 'ငွေလက်ခံသည့် နည်းလမ်းများ',
-    'payment_desc': 'လက်ခံသည့် ငွေပေးချေမှု နည်းလမ်းများ (KPay, Wave, Cash, QR)',
+    'payment_desc':
+        'လက်ခံသည့် ငွေပေးချေမှု နည်းလမ်းများ (KPay, Wave, Cash, QR)',
     'earnings_insights': 'ဝင်ငွေနှင့် ဘိုကင် အချက်အလက်များ',
     'earnings_desc': 'နေ့စဉ် ဝင်ငွေနှင့် ဘိုကင် စာရင်းများ ကြည့်ရန်',
     'edit_description': 'ဆိုင်အကြောင်း ပြင်ဆင်ရန်',
@@ -306,7 +308,8 @@ class AppLanguageProvider extends ChangeNotifier {
     'add_service': 'ဝန်ဆောင်မှု သစ်ထည့်ရန်',
     'add_staff': 'ဝန်ထမ်း သစ်ထည့်ရန်',
     'service_groups': 'ဝန်ဆောင်မှု အုပ်စုများ စီမံရန်',
-    'service_mode_options': 'ဝန်ဆောင်မှု အမျိုးအစားများ (အက်ဒမင် စစ်ဆေးရန် လိုအပ်)',
+    'service_mode_options':
+        'ဝန်ဆောင်မှု အမျိုးအစားများ (အက်ဒမင် စစ်ဆေးရန် လိုအပ်)',
     'storefront_shop_mode': 'ဆိုင်သို့ လာရောက်သည့် ဝန်ဆောင်မှု',
     'storefront_shop_desc': 'ဆိုင်တွင်း ဘိုကင်နှင့် ဝန်ထမ်း ရွေးချယ်နိုင်မှု',
     'home_service_mode': 'အိမ်တိုင်ရာရောက် ဝန်ဆောင်မှု',
@@ -317,12 +320,14 @@ class AppLanguageProvider extends ChangeNotifier {
     'submit_to_admin': 'အက်ဒမင်ထံ တင်ပြမည်',
     'confirm_status_change': 'အခြေအနေ ပြောင်းလဲရန် အတည်ပြုပါ',
     'save_schedule': 'ဆိုင်ဖွင့်ချိန် ပြင်ဆင်ချက် သိမ်းမည်',
-    'schedule_hint': 'တစ်ပတ်တာ ဆိုင်ဖွင့်ရက်များနှင့် ဖွင့်ချိန်၊ ပိတ်ချိန်များ သတ်မှတ်ပါ။',
+    'schedule_hint':
+        'တစ်ပတ်တာ ဆိုင်ဖွင့်ရက်များနှင့် ဖွင့်ချိန်၊ ပိတ်ချိန်များ သတ်မှတ်ပါ။',
     'off_day': 'ပိတ်ရက်',
     'active_status': 'အလုပ်လုပ်နေသည်',
     'day_off_break': 'နားရက် / အနားယူချိန်',
     'no_pending_requests': 'စောင့်ဆိုင်းဆဲ တောင်းဆိုမှု မရှိပါ',
-    'all_pending_processed': 'ဘိုကင် တောင်းဆိုမှု အားလုံးကို ဆောင်ရွက်ပြီးပါပြီ။',
+    'all_pending_processed':
+        'ဘိုကင် တောင်းဆိုမှု အားလုံးကို ဆောင်ရွက်ပြီးပါပြီ။',
     'tap_to_manage': 'စီမံရန် နှိပ်ပါ',
   };
 }

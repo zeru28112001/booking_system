@@ -232,8 +232,12 @@ final GoRouter _router = GoRouter(
           onBook: (screenContext, provider, servicesList, staff) async {
             final primaryServiceId = servicesList.isNotEmpty ? servicesList.first.id : '';
             final serviceName = servicesList.map((s) => s.name).join(' + ');
-            final totalPrice =
-                servicesList.fold(0, (sum, s) => sum + s.price);
+            final totalPrice = servicesList.fold(0, (sum, s) {
+              if (staff != null && staff.servicePrices.containsKey(s.name)) {
+                return sum + staff.servicePrices[s.name]!;
+              }
+              return sum + s.price;
+            });
             final totalDuration =
                 servicesList.fold(0, (sum, s) => sum + s.durationMinutes);
             final itemized = servicesList.map((s) => s.name).toList();

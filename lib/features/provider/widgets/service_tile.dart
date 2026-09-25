@@ -11,15 +11,20 @@ class ServiceTile extends StatelessWidget {
     required this.service,
     required this.onTap,
     this.isSelected = false,
+    this.overridePrice,
   });
 
   final Service service;
   final VoidCallback onTap;
   final bool isSelected;
+  final int? overridePrice;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final displayPrice = overridePrice ?? service.price;
+    final hasCustomStaffPrice = overridePrice != null && overridePrice != service.price;
+
     return Material(
       color: isSelected ? AppTheme.primary.withAlpha(12) : AppTheme.surface,
       borderRadius: BorderRadius.circular(AppConstants.radiusMd),
@@ -75,8 +80,11 @@ class ServiceTile extends StatelessWidget {
                     const SizedBox(height: AppConstants.spaceXs),
                     Text(
                       '${AppFormatters.durationLabel(service.durationMinutes)} · '
-                      '${AppFormatters.currency(service.price)}',
-                      style: theme.textTheme.bodySmall,
+                      '${AppFormatters.currency(displayPrice)}${hasCustomStaffPrice ? " (Staff Price)" : ""}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: hasCustomStaffPrice ? AppTheme.primary : null,
+                        fontWeight: hasCustomStaffPrice ? FontWeight.bold : null,
+                      ),
                     ),
                   ],
                 ),

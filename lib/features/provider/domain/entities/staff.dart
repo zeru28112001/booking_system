@@ -9,6 +9,7 @@ class Staff {
     required this.isAvailableToday,
     this.avatarUrl,
     this.specialties = const [],
+    this.servicePrices = const {},
     this.offDays = const [],
     this.shiftStartTime,
     this.shiftEndTime,
@@ -21,6 +22,7 @@ class Staff {
   final bool isAvailableToday;
   final String? avatarUrl;
   final List<String> specialties;
+  final Map<String, int> servicePrices; // Service name -> Custom price mapping
   final List<String> offDays;
   final String? shiftStartTime;
   final String? shiftEndTime;

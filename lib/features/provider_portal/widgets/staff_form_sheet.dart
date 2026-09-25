@@ -21,6 +21,7 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late Set<String> _selectedSpecialties;
+  late Map<String, int> _servicePrices;
   late bool _isActive;
   late Set<String> _offDays;
   TimeOfDay? _shiftStartTime;
@@ -46,6 +47,7 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
     _nameController = TextEditingController(text: stf?.name ?? '');
     _phoneController = TextEditingController(text: stf?.phone ?? '');
     _selectedSpecialties = stf?.specialties.toSet() ?? {};
+    _servicePrices = Map<String, int>.from(stf?.servicePrices ?? {});
     _isActive = stf?.isActive ?? true;
     _offDays = stf?.offDays.toSet() ?? {};
     _shiftStartTime = _parseTime(stf?.shiftStartTime);
@@ -65,11 +67,19 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
     final provider = context.read<ProviderPortalProvider>();
     final isNew = widget.staff == null;
 
+    final activePrices = <String, int>{};
+    for (final specialty in _selectedSpecialties) {
+      if (_servicePrices.containsKey(specialty)) {
+        activePrices[specialty] = _servicePrices[specialty]!;
+      }
+    }
+
     final staffMember = ProviderStaff(
       id: widget.staff?.id ?? '',
       name: _nameController.text.trim(),
       phone: _phoneController.text.trim(),
       specialties: _selectedSpecialties.toList(),
+      servicePrices: activePrices,
       isActive: _isActive,
       avatarUrl: widget.staff?.avatarUrl ?? '',
       offDays: _offDays.toList(),
@@ -137,12 +147,12 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
               const SizedBox(height: AppConstants.spaceLg),
 
               Text(
-                'Assign Services & Specialties',
+                'Assign Services & Custom Pricing',
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
-                'Select the services this staff member is qualified to perform:',
+                'Select services this staff can perform & set custom staff pricing (optional):',
                 style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: AppConstants.spaceSm),
@@ -165,8 +175,10 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
                   return Column(
                     children: services.map((s) {
                       final isChecked = _selectedSpecialties.contains(s.name);
+                      final currentPrice = _servicePrices[s.name] ?? s.price;
+
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
+                        margin: const EdgeInsets.only(bottom: 10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                           border: Border.all(
@@ -175,36 +187,88 @@ class _StaffFormSheetState extends State<StaffFormSheet> {
                           ),
                         ),
                         child: Material(
-                          color: isChecked ? AppTheme.primary.withAlpha(15) : AppTheme.surface,
+                          color: isChecked ? AppTheme.primary.withAlpha(12) : AppTheme.surface,
                           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                           clipBehavior: Clip.antiAlias,
-                          child: CheckboxListTile(
-                            dense: true,
-                            value: isChecked,
-                            tileColor: Colors.transparent,
-                            activeColor: AppTheme.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                            ),
-                            title: Text(
-                              s.name,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: isChecked ? FontWeight.bold : FontWeight.w500,
+                          child: Column(
+                            children: [
+                              CheckboxListTile(
+                                dense: true,
+                                value: isChecked,
+                                tileColor: Colors.transparent,
+                                activeColor: AppTheme.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                ),
+                                title: Text(
+                                  s.name,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: isChecked ? FontWeight.bold : FontWeight.w500,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${s.group} · ${s.durationMinutes} mins · Base: ${s.price} MMK',
+                                  style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
+                                ),
+                                onChanged: (val) {
+                                  setState(() {
+                                    if (val == true) {
+                                      _selectedSpecialties.add(s.name);
+                                      if (!_servicePrices.containsKey(s.name)) {
+                                        _servicePrices[s.name] = s.price;
+                                      }
+                                    } else {
+                                      _selectedSpecialties.remove(s.name);
+                                      _servicePrices.remove(s.name);
+                                    }
+                                  });
+                                },
                               ),
-                            ),
-                            subtitle: Text(
-                              '${s.group} · ${s.durationMinutes} mins',
-                              style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
-                            ),
-                            onChanged: (val) {
-                              setState(() {
-                                if (val == true) {
-                                  _selectedSpecialties.add(s.name);
-                                } else {
-                                  _selectedSpecialties.remove(s.name);
-                                }
-                              });
-                            },
+                              if (isChecked) ...[
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.sell_outlined, size: 16, color: AppTheme.primary),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Staff Service Price:',
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: AppTheme.primary,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 140,
+                                        child: TextFormField(
+                                          initialValue: currentPrice.toString(),
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            suffixText: 'MMK',
+                                            isDense: true,
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+                                            ),
+                                          ),
+                                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                          onChanged: (val) {
+                                            final parsed = int.tryParse(val.trim());
+                                            if (parsed != null && parsed > 0) {
+                                              _servicePrices[s.name] = parsed;
+                                            } else {
+                                              _servicePrices[s.name] = s.price;
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       );

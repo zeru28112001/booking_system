@@ -232,8 +232,15 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
               ? selectedList
               : [services.first];
 
+          int getServicePrice(Service service) {
+            if (_selectedStaff != null && _selectedStaff!.servicePrices.containsKey(service.name)) {
+              return _selectedStaff!.servicePrices[service.name]!;
+            }
+            return service.price;
+          }
+
           final totalPrice =
-              effectiveList.fold(0, (sum, s) => sum + s.price);
+              effectiveList.fold(0, (sum, s) => sum + getServicePrice(s));
           final totalDuration =
               effectiveList.fold(0, (sum, s) => sum + s.durationMinutes);
 
@@ -337,6 +344,9 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
       for (final service in services) ...[
         ServiceTile(
           service: service,
+          overridePrice: (_selectedStaff != null && _selectedStaff!.servicePrices.containsKey(service.name))
+              ? _selectedStaff!.servicePrices[service.name]
+              : null,
           isSelected: _selectedServicesMap.containsKey(service.id),
           onTap: () => _toggleService(service),
         ),

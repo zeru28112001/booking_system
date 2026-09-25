@@ -5,6 +5,7 @@ class ProviderStaff {
     required this.name,
     required this.phone,
     required this.specialties,
+    this.servicePrices = const {},
     required this.isActive,
     required this.avatarUrl,
     this.offDays = const [],
@@ -16,6 +17,7 @@ class ProviderStaff {
   final String name;
   final String phone;
   final List<String> specialties;
+  final Map<String, int> servicePrices;
   final bool isActive;
   final String avatarUrl;
   final List<String> offDays;

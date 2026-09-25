@@ -9,12 +9,24 @@ class StaffModel extends Staff {
     required super.isAvailableToday,
     super.avatarUrl,
     super.specialties = const [],
+    super.servicePrices = const {},
     super.offDays,
     super.shiftStartTime,
     super.shiftEndTime,
   });
 
   factory StaffModel.fromJson(Map<String, dynamic> json) {
+    Map<String, int> parsedPrices = {};
+    if (json['servicePrices'] is Map) {
+      (json['servicePrices'] as Map).forEach((k, v) {
+        if (v is num) parsedPrices[k.toString()] = v.toInt();
+      });
+    } else if (json['service_prices'] is Map) {
+      (json['service_prices'] as Map).forEach((k, v) {
+        if (v is num) parsedPrices[k.toString()] = v.toInt();
+      });
+    }
+
     return StaffModel(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
       name: json['name'] as String? ?? '',
@@ -30,6 +42,7 @@ class StaffModel extends Staff {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      servicePrices: parsedPrices,
       offDays: (json['offDays'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       shiftStartTime: json['shiftStartTime'] as String?,
       shiftEndTime: json['shiftEndTime'] as String?,
@@ -45,6 +58,8 @@ class StaffModel extends Staff {
       'is_available_today': isAvailableToday,
       'avatar_url': avatarUrl,
       'specialties': specialties,
+      'servicePrices': servicePrices,
+      'service_prices': servicePrices,
       'offDays': offDays,
       'shiftStartTime': shiftStartTime,
       'shiftEndTime': shiftEndTime,
