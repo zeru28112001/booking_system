@@ -108,10 +108,18 @@ class BookingApiService {
   // ── Response shaping ──────────────────────────────────────────────────────
 
   /// ApiClient normalises an empty body to {}, so unwrap `{ data: ... }` and
-  /// tolerate a bare JSON payload.
-  List<dynamic> _asList(dynamic data) => data is Map<String, dynamic>
-      ? (data['data'] as List<dynamic>? ?? const [])
-      : (data as List<dynamic>? ?? const []);
+  /// tolerate a bare JSON payload or paginated object payload `{ items: [...] }`.
+  List<dynamic> _asList(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final payload = data['data'] ?? data;
+      if (payload is Map<String, dynamic> && payload.containsKey('items')) {
+        return payload['items'] as List<dynamic>? ?? const [];
+      }
+      if (payload is List<dynamic>) return payload;
+    }
+    if (data is List<dynamic>) return data;
+    return const [];
+  }
 
   Map<String, dynamic> _asMap(dynamic data) => data is Map<String, dynamic>
       ? (data['data'] as Map<String, dynamic>? ?? data)

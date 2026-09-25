@@ -85,9 +85,7 @@ class AdminPortalProvider extends ChangeNotifier {
       }
 
       final providersData = await apiClient!.get('/admin/providers');
-      final list = providersData is Map<String, dynamic>
-          ? (providersData['data'] as List<dynamic>? ?? const [])
-          : (providersData as List<dynamic>? ?? const []);
+      final list = _extractList(providersData);
 
       _providers = list
           .map((item) => ProviderProfileModel.fromJson(item as Map<String, dynamic>))
@@ -108,6 +106,18 @@ class AdminPortalProvider extends ChangeNotifier {
     }
   }
 
+  List<dynamic> _extractList(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final payload = data['data'] ?? data;
+      if (payload is Map<String, dynamic> && payload.containsKey('items')) {
+        return payload['items'] as List<dynamic>? ?? const [];
+      }
+      if (payload is List<dynamic>) return payload;
+    }
+    if (data is List<dynamic>) return data;
+    return const [];
+  }
+
   Future<void> fetchAdminData() => fetchAdminDashboardData();
 
   // ── Pending Profile Requests ───────────────────────────────────────────────
@@ -116,9 +126,7 @@ class AdminPortalProvider extends ChangeNotifier {
     if (apiClient == null) return;
     try {
       final res = await apiClient!.get('/admin/profile-requests');
-      final list = res is Map<String, dynamic>
-          ? (res['data'] as List<dynamic>? ?? const [])
-          : (res as List<dynamic>? ?? const []);
+      final list = _extractList(res);
 
       _pendingProfileRequests = list
           .map((item) => ProviderProfileRequestModel.fromJson(item as Map<String, dynamic>))
@@ -173,9 +181,7 @@ class AdminPortalProvider extends ChangeNotifier {
         path += '?status=$status';
       }
       final res = await apiClient!.get(path);
-      final list = res is Map<String, dynamic>
-          ? (res['data'] as List<dynamic>? ?? const [])
-          : (res as List<dynamic>? ?? const []);
+      final list = _extractList(res);
 
       _allBookings = list
           .map((item) => BookingModel.fromJson(item as Map<String, dynamic>))

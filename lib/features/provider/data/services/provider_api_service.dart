@@ -8,6 +8,18 @@ class ProviderApiService {
 
   final ApiClient _apiClient;
 
+  List<dynamic> _extractList(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final payload = data['data'] ?? data;
+      if (payload is Map<String, dynamic> && payload.containsKey('items')) {
+        return payload['items'] as List<dynamic>? ?? const [];
+      }
+      if (payload is List<dynamic>) return payload;
+    }
+    if (data is List<dynamic>) return data;
+    return const [];
+  }
+
   /// GET /providers?categoryId={categoryId}&lat={lat}&lng={lng}
   Future<List<ServiceProviderModel>> getProvidersByCategory(
     String categoryId, {
@@ -22,11 +34,7 @@ class ProviderApiService {
     }
     final data = await _apiClient.get(url);
 
-    // ApiClient normalises an empty body to {}, so unwrap `{ data: [...] }`
-    // and tolerate a bare JSON array.
-    final List<dynamic> list = data is Map<String, dynamic>
-        ? (data['data'] as List<dynamic>? ?? const [])
-        : (data as List<dynamic>? ?? const []);
+    final List<dynamic> list = _extractList(data);
 
     return list
         .map((item) => ServiceProviderModel.fromJson(item as Map<String, dynamic>))
@@ -53,9 +61,7 @@ class ProviderApiService {
     url += params.join('&');
     final data = await _apiClient.get(url);
 
-    final List<dynamic> list = data is Map<String, dynamic>
-        ? (data['data'] as List<dynamic>? ?? const [])
-        : (data as List<dynamic>? ?? const []);
+    final List<dynamic> list = _extractList(data);
 
     return list
         .map((item) => ServiceProviderModel.fromJson(item as Map<String, dynamic>))
