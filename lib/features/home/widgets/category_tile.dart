@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/localization/app_language_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../domain/entities/category.dart';
 
@@ -25,6 +27,9 @@ class CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final langProvider = context.watch<AppLanguageProvider>();
+    final displayName = category.getLocalizedName(langProvider.languageCode);
+
     return Material(
       color: AppTheme.surface,
       borderRadius: BorderRadius.circular(AppConstants.radiusLg),
@@ -56,9 +61,8 @@ class CategoryTile extends StatelessWidget {
                   color: AppTheme.onPrimary,
                 ),
               ),
-              const SizedBox(height: AppConstants.spaceSm),
               Text(
-                category.name,
+                displayName,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

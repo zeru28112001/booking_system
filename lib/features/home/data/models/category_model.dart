@@ -6,6 +6,7 @@ class CategoryModel extends Category {
   const CategoryModel({
     required super.id,
     required super.name,
+    super.nameMm,
     required super.iconName,
   });
 
@@ -13,6 +14,7 @@ class CategoryModel extends Category {
     return CategoryModel(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
       name: (json['name'] as String?) ?? '',
+      nameMm: (json['name_mm'] as String?) ?? (json['nameMm'] as String?),
       iconName: (json['iconName'] as String?) ?? (json['icon'] as String?) ?? (json['icon_name'] as String?) ?? '',
     );
   }
@@ -20,6 +22,7 @@ class CategoryModel extends Category {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
+        'name_mm': nameMm,
         'icon': iconName,
       };
 }

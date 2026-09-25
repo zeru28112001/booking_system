@@ -38,9 +38,12 @@ import 'core/widgets/main_shell_screen.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/data/services/profile_api_service.dart';
 import 'features/profile/providers/profile_provider.dart';
+import 'core/localization/app_language_provider.dart';
 import 'features/profile/screens/edit_profile_screen.dart';
+import 'features/profile/screens/privacy_policy_screen.dart';
 import 'features/profile/screens/profile_screen.dart';
 import 'features/profile/screens/settings_screen.dart';
+import 'features/profile/screens/terms_of_service_screen.dart';
 import 'features/review/data/repositories/review_repository_impl.dart';
 import 'features/review/data/services/review_api_service.dart';
 import 'features/review/providers/review_provider.dart';
@@ -316,6 +319,22 @@ final GoRouter _router = GoRouter(
       ),
     ),
     GoRoute(
+      path: '/privacy-policy',
+      pageBuilder: (context, state) => _buildPageWithTransition(
+        context: context,
+        state: state,
+        child: const PrivacyPolicyScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/terms-of-service',
+      pageBuilder: (context, state) => _buildPageWithTransition(
+        context: context,
+        state: state,
+        child: const TermsOfServiceScreen(),
+      ),
+    ),
+    GoRoute(
       path: '/provider-dashboard',
       builder: (context, state) => const ProviderShellScreen(),
     ),
@@ -478,6 +497,9 @@ class BookingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => MaintenanceProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AppLanguageProvider(),
         ),
       ],
       child: MaterialApp.router(
