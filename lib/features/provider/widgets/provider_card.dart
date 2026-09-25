@@ -87,6 +87,7 @@ class ProviderCard extends StatelessWidget {
               const SizedBox(width: AppConstants.spaceSm),
               _OpenPill(
                 isOpen: provider.isOpen,
+                isCurrentlyOpen: provider.isCurrentlyOpen,
                 isAvailable: provider.isAvailable,
               ),
             ],
@@ -100,15 +101,17 @@ class ProviderCard extends StatelessWidget {
 class _OpenPill extends StatelessWidget {
   const _OpenPill({
     required this.isOpen,
+    this.isCurrentlyOpen = true,
     this.isAvailable = true,
   });
 
   final bool isOpen;
+  final bool isCurrentlyOpen;
   final bool isAvailable;
 
   @override
   Widget build(BuildContext context) {
-    final bool active = isOpen && isAvailable;
+    final bool active = isOpen && isCurrentlyOpen && isAvailable;
     final color = active
         ? AppTheme.secondary
         : (!isAvailable ? AppTheme.warning : AppTheme.textHint);

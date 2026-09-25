@@ -22,6 +22,7 @@ class ServiceProviderModel extends ServiceProvider {
     required super.address,
     required super.phone,
     required super.isOpen,
+    super.isCurrentlyOpen = true,
     super.isAvailable = true,
     super.isShop = false,
     super.isHomeService = false,
@@ -57,6 +58,7 @@ class ServiceProviderModel extends ServiceProvider {
       address: (json['address'] as String?) ?? '',
       phone: (json['phone'] as String?) ?? '',
       isOpen: (json['is_open'] as bool?) ?? (json['isOpen'] as bool?) ?? true,
+      isCurrentlyOpen: (json['is_currently_open'] as bool?) ?? (json['isCurrentlyOpen'] as bool?) ?? false,
       isAvailable: (json['is_available'] as bool?) ??
           (json['isAvailable'] as bool?) ??
           (json['is_open'] as bool?) ??

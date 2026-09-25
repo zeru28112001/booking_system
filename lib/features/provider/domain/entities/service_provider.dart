@@ -18,6 +18,7 @@ class ServiceProvider {
     required this.address,
     required this.phone,
     required this.isOpen,
+    this.isCurrentlyOpen = true,
     this.isAvailable = true,
     this.isShop = false,
     this.isHomeService = false,
@@ -45,6 +46,7 @@ class ServiceProvider {
   final String address;
   final String phone;
   final bool isOpen;
+  final bool isCurrentlyOpen;
   final bool isAvailable;
 
   /// True if shop model (multiple staff), false if solo pro.

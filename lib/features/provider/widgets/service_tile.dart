@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
@@ -23,7 +24,8 @@ class ServiceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final displayPrice = overridePrice ?? service.price;
-    final hasCustomStaffPrice = overridePrice != null && overridePrice != service.price;
+    final hasCustomStaffPrice =
+        overridePrice != null && overridePrice != service.price;
 
     return Material(
       color: isSelected ? AppTheme.primary.withAlpha(12) : AppTheme.surface,
@@ -73,17 +75,20 @@ class ServiceTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w600,
-                          ),
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: AppConstants.spaceXs),
                     Text(
                       '${AppFormatters.durationLabel(service.durationMinutes)} · '
-                      '${AppFormatters.currency(displayPrice)}${hasCustomStaffPrice ? " (Staff Price)" : ""}',
+                      '${AppFormatters.currency(displayPrice)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: hasCustomStaffPrice ? AppTheme.primary : null,
-                        fontWeight: hasCustomStaffPrice ? FontWeight.bold : null,
+                        fontWeight: hasCustomStaffPrice
+                            ? FontWeight.bold
+                            : null,
                       ),
                     ),
                   ],
@@ -104,11 +109,9 @@ class ServiceTile extends StatelessWidget {
                 child: Text(
                   isSelected ? 'Added' : 'Add',
                   style: theme.textTheme.bodySmall?.copyWith(
-                        color: isSelected
-                            ? AppTheme.onPrimary
-                            : AppTheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: isSelected ? AppTheme.onPrimary : AppTheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],

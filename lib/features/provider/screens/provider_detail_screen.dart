@@ -382,24 +382,29 @@ class _Header extends StatelessWidget {
             child: GradientAvatar(name: provider.name, size: 72, fontSize: 28),
           ),
           const SizedBox(height: AppConstants.spaceSm),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.spaceSm,
-              vertical: AppConstants.spaceXs,
-            ),
-            decoration: BoxDecoration(
-              color: AppTheme.surface.withAlpha(230),
-              borderRadius: BorderRadius.circular(AppConstants.radiusPill),
-            ),
-            child: Text(
-              provider.isOpen ? 'Open now' : 'Closed',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: provider.isOpen
-                        ? AppTheme.secondary
-                        : AppTheme.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
+          Builder(
+            builder: (context) {
+              final isCurrentlyOpen = provider.isCurrentlyOpen && provider.isOpen && provider.isAvailable;
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.spaceSm,
+                  vertical: AppConstants.spaceXs,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface.withAlpha(230),
+                  borderRadius: BorderRadius.circular(AppConstants.radiusPill),
+                ),
+                child: Text(
+                  isCurrentlyOpen ? 'Open now' : 'Closed',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: isCurrentlyOpen
+                            ? AppTheme.secondary
+                            : AppTheme.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              );
+            },
           ),
         ],
       ),
